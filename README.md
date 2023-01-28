@@ -22,4 +22,5 @@ Nous avons décidé d'utiliser nginx
 location /api {
   proxy_pass http://localhost:5104;
 }
+```
 (Modifier le port 5104 avec celui de l'api si vous l'avez modifié)
