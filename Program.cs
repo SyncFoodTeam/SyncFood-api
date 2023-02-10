@@ -1,6 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
-using SyncFoodApi.Models;
+using SyncFoodApi.dbcontext;
 
 namespace SyncFoodApi
 {
@@ -9,12 +9,18 @@ namespace SyncFoodApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var context = new SyncFoodContext();
+
+            // créé le fichier de db si il n'existe pas
+            context.Database.EnsureCreated();
 
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddDbContext<SyncFoodContext>(opt =>
-                 opt.UseInMemoryDatabase("UserContext"));
+
+            
+            builder.Services.AddDbContext<SyncFoodContext>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -28,7 +34,7 @@ namespace SyncFoodApi
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
