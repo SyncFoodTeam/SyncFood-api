@@ -1,4 +1,5 @@
 
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
 using SyncFoodApi.dbcontext;
 
@@ -8,6 +9,7 @@ namespace SyncFoodApi
     {
         public static void Main(string[] args)
         {
+            
             var builder = WebApplication.CreateBuilder(args);
             var context = new SyncFoodContext();
 
