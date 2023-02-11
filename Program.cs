@@ -3,6 +3,7 @@ using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
+using BCrypt.Net;
 
 namespace SyncFoodApi
 {
@@ -10,7 +11,7 @@ namespace SyncFoodApi
     {
         public static void Main(string[] args)
         {
-
+            
             var builder = WebApplication.CreateBuilder(args);
             var context = new SyncFoodContext();
 

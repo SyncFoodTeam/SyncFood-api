@@ -4,6 +4,7 @@ namespace SyncFoodApi.Controllers.DTO.Output
 {
     public class UserPrivateDTO
     {
+        public int Id { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Discriminator { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -17,6 +18,7 @@ namespace SyncFoodApi.Controllers.DTO.Output
         {
             return new UserPrivateDTO
             {
+                Id = user.Id,
                 UserName = user.UserName,
                 Discriminator = user.Discriminator,
                 Email = user.Email,
