@@ -350,4 +350,4 @@ MigrationBackup/
 .ionide/
 
 # Sqlite database file
-.db
+*.db
