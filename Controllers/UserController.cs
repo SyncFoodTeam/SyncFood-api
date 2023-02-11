@@ -47,25 +47,12 @@ namespace SyncFoodApi.Controllers
         {
 
             var usersList = _context.Users.Where(x => x.UserName.ToLower() == wantedUserName.ToLower());
-            var exist = usersList.Any(x => x.Discriminator == wantedDiscriminator);
+            bool exist = usersList.Any(x => x.Discriminator == wantedDiscriminator);
             return exist;
         }
 
 
         // ROUTES
-        [HttpGet("test")]
-        public ActionResult<UserRegisterDTO> testUsers()
-        {
-
-            User userTest = new User();
-            userTest.Email = "Jeanbon@mail";
-            userTest.Discriminator = "8492";
-            userTest.UserName = "Jeanbon";
-
-            UserRegisterDTO userTestDTO = (UserRegisterDTO)userTest;
-
-            return Ok(userTestDTO);
-        }
 
         [HttpPost("register")]
         public ActionResult<User> UserRegister(UserRegisterDTO request)
@@ -75,7 +62,7 @@ namespace SyncFoodApi.Controllers
             User registeredUser = new User();
 
 
-            var EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
+            bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
             if (EmailAlreadyUsed)
             {
@@ -113,7 +100,7 @@ namespace SyncFoodApi.Controllers
         public ActionResult<User> UserLogin(UserLoginDTO request)
         {
 
-            User user = _context.Users.First(x => x.Email.ToLower() == request.Email.ToLower());
+            User user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == request.Email.ToLower());
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {

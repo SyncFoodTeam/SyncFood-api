@@ -4,7 +4,7 @@ namespace SyncFoodApi.Controllers.DTO.Output
 {
     public class UserPublicDTO
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Discriminator { get; set; } = string.Empty;
         public DateTime CreationDate { get; set; }
