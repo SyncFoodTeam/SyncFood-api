@@ -58,7 +58,6 @@ namespace SyncFoodApi.Controllers
         public ActionResult<User> UserRegister(UserRegisterDTO request)
         {
 
-
             User registeredUser = new User();
 
 
@@ -113,6 +112,23 @@ namespace SyncFoodApi.Controllers
             else
             {
                 return Unauthorized("The given email or password are incorrect");
+            }
+        }
+
+        [HttpGet("info/{userID}")]
+        public ActionResult<User> UserInfo(int userID)
+        {
+
+            User user = _context.Users.FirstOrDefault(x => x.Id == userID);
+            if (user != null)
+            {
+                UserPublicDTO userInfo = (UserPublicDTO)user;
+                return Ok(userInfo);
+            }
+
+            else
+            {
+                return NotFound("There is no user corresponding to this id");
             }
         }
     }
