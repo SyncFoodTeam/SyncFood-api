@@ -351,3 +351,5 @@ MigrationBackup/
 
 # Sqlite database file
 *.db
+*.db-shm
+*.db-wal

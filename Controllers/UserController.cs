@@ -146,6 +146,19 @@ namespace SyncFoodApi.Controllers
             }
         }
 
+        [HttpGet("info/me")]
+        public ActionResult<User> UserInfoSelf([FromHeader(Name ="token")] string token)
+        {
+            if (!isTokenValid(token))
+            {
+                return Unauthorized("The given token is invalid");
+            }
+
+            User user = _context.Users.FirstOrDefault(x =>x.Token == token);
+            UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
+            return Ok(userCrendtial);
+        }
+
         [HttpGet("info/{userID}")]
         public ActionResult<User> UserInfo(int userID)
         {
@@ -163,16 +176,5 @@ namespace SyncFoodApi.Controllers
             }
         }
 
-        [HttpGet("test")]
-        public ActionResult Test(string token)
-        {
-
-            if (isTokenValid(token))
-            {
-                return Ok();
-            }
-
-            return Unauthorized("The given token is incorrect");
-        }
     }
 }
