@@ -103,7 +103,7 @@ namespace SyncFoodApi.Controllers
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-
+                // TODO TOKEN GENERATION
                 UserPrivateDTO userCredential = (UserPrivateDTO)user;
                 return Ok(userCredential);
 
