@@ -6,6 +6,7 @@ using SyncFoodApi.Controllers.DTO.Output;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
 using BCrypt.Net;
+using NuGet.Common;
 
 namespace SyncFoodApi.Controllers
 {
@@ -49,6 +50,29 @@ namespace SyncFoodApi.Controllers
             var usersList = _context.Users.Where(x => x.UserName.ToLower() == wantedUserName.ToLower());
             bool exist = usersList.Any(x => x.Discriminator == wantedDiscriminator);
             return exist;
+        }
+
+        // Extrêmement basique mais fait le taff pour l'instant
+        private string generateToken()
+        {
+            var allChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var resultToken = new string(
+               Enumerable.Repeat(allChar, 70)
+               .Select(token => token[random.Next(token.Length)]).ToArray());
+
+            string authToken = resultToken.ToString();
+            return authToken;
+        }
+
+        private Boolean isTokenValid(string token)
+        {
+           if ( (_context.Users.FirstOrDefault(x => x.Token == token)) != null)
+            {
+                return true;
+            }
+
+           return false;
         }
 
 
@@ -104,6 +128,13 @@ namespace SyncFoodApi.Controllers
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 // TODO TOKEN GENERATION
+                if (user.Token == string.Empty)
+                {
+                    user.Token = generateToken();
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
+                }
+
                 UserPrivateDTO userCredential = (UserPrivateDTO)user;
                 return Ok(userCredential);
 
@@ -130,6 +161,18 @@ namespace SyncFoodApi.Controllers
             {
                 return NotFound("There is no user corresponding to this id");
             }
+        }
+
+        [HttpGet("test")]
+        public ActionResult Test(string token)
+        {
+
+            if (isTokenValid(token))
+            {
+                return Ok();
+            }
+
+            return Unauthorized("The given token is incorrect");
         }
     }
 }
