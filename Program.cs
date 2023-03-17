@@ -15,7 +15,7 @@ namespace SyncFoodApi
             var builder = WebApplication.CreateBuilder(args);
             var context = new SyncFoodContext();
 
-            // créé le fichier de db si il n'existe pas
+            // créé le fichier de db si il n'existe pas + effectue les migrations si besoin
             context.Database.EnsureCreated();
 
             // Add services to the container.
@@ -38,6 +38,7 @@ namespace SyncFoodApi
                 app.UseSwaggerUI();
             }
 
+            // à gérer côté serveur d'hébergement (NGINX)
             // app.UseHttpsRedirection();
 
             app.UseAuthorization();

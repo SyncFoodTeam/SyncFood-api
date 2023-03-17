@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SyncFoodApi.Controllers.DTO.Input;
-using SyncFoodApi.Controllers.DTO.Output;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
 using BCrypt.Net;
 using NuGet.Common;
+using SyncFoodApi.Controllers.DTO.Input;
+using SyncFoodApi.Controllers.DTO.Output;
 
 namespace SyncFoodApi.Controllers
 {
@@ -73,6 +73,17 @@ namespace SyncFoodApi.Controllers
             }
 
            return false;
+        }
+
+        private Boolean isAdmin(User user)
+        {
+            return user.Role == Role.ADMIN;
+        }
+
+        private User getUserWithToken(string token)
+        {
+            User user = _context.Users.FirstOrDefault(x => x.Token == token);
+            return user;
         }
 
 
@@ -174,6 +185,28 @@ namespace SyncFoodApi.Controllers
             {
                 return NotFound("There is no user corresponding to this id");
             }
+        }
+
+        [HttpGet("admin/test")]
+        public ActionResult adminTest([FromHeader(Name = "token")] string token)
+        {
+            if (!isTokenValid(token))
+            {
+                return Unauthorized("The given token is invalid");
+            }
+
+            User user = getUserWithToken(token);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (isAdmin(user))
+            {
+                return Ok("Your are admin");
+            }
+
+            return Unauthorized() ;
         }
 
     }

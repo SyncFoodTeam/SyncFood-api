@@ -9,6 +9,7 @@ namespace SyncFoodApi.Controllers.DTO.Output
         public string Discriminator { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
+        public Role Role { get; set; } = Role.USER;
         public DateTime CreationDate { get; set; }
         public DateTime UpdatedDate { get; set; }
 
@@ -23,6 +24,7 @@ namespace SyncFoodApi.Controllers.DTO.Output
                 Discriminator = user.Discriminator,
                 Email = user.Email,
                 Token = user.Token,
+                Role = user.Role,
                 CreationDate = user.CreationDate,
                 UpdatedDate = user.UpdatedDate
             };
