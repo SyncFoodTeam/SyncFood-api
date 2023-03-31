@@ -1,6 +1,6 @@
 ﻿using SyncFoodApi.Models;
 
-namespace SyncFoodApi.Controllers.DTO.Input
+namespace SyncFoodApi.Controllers.Users.DTO.Input
 {
     public class UserLoginDTO
     {

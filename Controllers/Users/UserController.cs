@@ -5,10 +5,11 @@ using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
 using BCrypt.Net;
 using NuGet.Common;
+using SyncFoodApi.Controllers.Users.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Output;
 
-namespace SyncFoodApi.Controllers
+namespace SyncFoodApi.Controllers.Users
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -65,17 +66,17 @@ namespace SyncFoodApi.Controllers
             return authToken;
         }
 
-        private Boolean isTokenValid(string token)
+        private bool isTokenValid(string token)
         {
-           if ( (_context.Users.FirstOrDefault(x => x.Token == token)) != null)
+            if (_context.Users.FirstOrDefault(x => x.Token == token) != null)
             {
                 return true;
             }
 
-           return false;
+            return false;
         }
 
-        private Boolean isAdmin(User user)
+        private bool isAdmin(User user)
         {
             return user.Role == Role.ADMIN;
         }
@@ -158,14 +159,14 @@ namespace SyncFoodApi.Controllers
         }
 
         [HttpGet("info/me")]
-        public ActionResult<User> UserInfoSelf([FromHeader(Name ="token")] string token)
+        public ActionResult<User> UserInfoSelf([FromHeader(Name = "token")] string token)
         {
             if (!isTokenValid(token))
             {
                 return Unauthorized("The given token is invalid");
             }
 
-            User user = _context.Users.FirstOrDefault(x =>x.Token == token);
+            User user = _context.Users.FirstOrDefault(x => x.Token == token);
             UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
             return Ok(userCrendtial);
         }
@@ -206,7 +207,7 @@ namespace SyncFoodApi.Controllers
                 return Ok("Your are admin");
             }
 
-            return Unauthorized() ;
+            return Unauthorized();
         }
 
     }
