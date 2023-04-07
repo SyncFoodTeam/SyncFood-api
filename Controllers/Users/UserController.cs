@@ -8,21 +8,68 @@ using NuGet.Common;
 using SyncFoodApi.Controllers.Users.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Output;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SyncFoodApi.Controllers.Users
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : Controller
     {
         private readonly SyncFoodContext _context;
-        public UserController(SyncFoodContext context)
+        private readonly IConfiguration _configuration;
+        public UserController(SyncFoodContext context, IConfiguration configuration)
         {
             // context de base de donnée
             _context = context;
+            // config de l'appSettings.json
+            _configuration = configuration;
         }
 
         // Fonctions et Méthodes
+
+
+        private bool IsValidEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false; // suggested by @TK-421
+            }
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == trimmedEmail;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            if (password.Length < 6)
+            {
+                return false;
+            }
+
+            bool containLower = false;
+            bool containUpper = false;
+
+            foreach (char c in password)
+            {
+                if (char.IsLower(c)) containLower = true;
+                if (char.IsUpper(c)) containUpper = true;
+            }
+
+            return (containLower && containUpper);
+        }
 
         private string discriminatorGenerator(string userName)
         {
@@ -53,44 +100,32 @@ namespace SyncFoodApi.Controllers.Users
             return exist;
         }
 
-        // Extrêmement basique mais fait le taff pour l'instant
-        private string generateToken()
+        private string generateToken(User user)
         {
-            var allChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
-            var resultToken = new string(
-               Enumerable.Repeat(allChar, 70)
-               .Select(token => token[random.Next(token.Length)]).ToArray());
-
-            string authToken = resultToken.ToString();
-            return authToken;
-        }
-
-        private bool isTokenValid(string token)
-        {
-            if (_context.Users.FirstOrDefault(x => x.Token == token) != null)
+            List<Claim> claims = new List<Claim>()
             {
-                return true;
-            }
+                new Claim(ClaimTypes.Email, user.Email)
+            };
 
-            return false;
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+                _configuration.GetSection("AppSettings:Token").Value));
+
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims:claims,
+                expires: DateTime.Now.AddDays(15),
+                signingCredentials: cred
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
         }
-
-        private bool isAdmin(User user)
-        {
-            return user.Role == Role.ADMIN;
-        }
-
-        private User getUserWithToken(string token)
-        {
-            User user = _context.Users.FirstOrDefault(x => x.Token == token);
-            return user;
-        }
-
 
         // ROUTES
 
-        [HttpPost("register")]
+        [HttpPost("register"), AllowAnonymous]
         public ActionResult<User> UserRegister(UserRegisterDTO request)
         {
 
@@ -100,9 +135,11 @@ namespace SyncFoodApi.Controllers.Users
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
             if (EmailAlreadyUsed)
-            {
                 return Conflict("This email address is already used");
-            }
+
+            if (!IsValidEmail(request.Email))
+                return BadRequest("The request email is invalid");
+
 
             registeredUser.Email = request.Email;
             registeredUser.UserName = request.UserName;
@@ -111,10 +148,10 @@ namespace SyncFoodApi.Controllers.Users
             registeredUser.Discriminator = discriminatorGenerator(registeredUser.UserName);
 
             if (registeredUser.Discriminator == string.Empty)
-            {
                 return Conflict("all discriminators are already taken for this username");
-            }
 
+            if (!IsPasswordValid(request.Password))
+                return BadRequest("The request password is invalid");
 
             registeredUser.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -131,7 +168,7 @@ namespace SyncFoodApi.Controllers.Users
             return Ok(userPrivateDTO);
         }
 
-        [HttpPost("login")]
+        [HttpPost("login"), AllowAnonymous]
         public ActionResult<User> UserLogin(UserLoginDTO request)
         {
 
@@ -142,7 +179,7 @@ namespace SyncFoodApi.Controllers.Users
                 // TODO TOKEN GENERATION
                 if (user.Token == string.Empty)
                 {
-                    user.Token = generateToken();
+                    user.Token = generateToken(user);
                     _context.Users.Update(user);
                     _context.SaveChanges();
                 }
@@ -158,23 +195,21 @@ namespace SyncFoodApi.Controllers.Users
             }
         }
 
+        [Authorize]
         [HttpGet("info/me")]
         public ActionResult<User> UserInfoSelf([FromHeader(Name = "token")] string token)
         {
-            if (!isTokenValid(token))
-            {
-                return Unauthorized("The given token is invalid");
-            }
 
             User user = _context.Users.FirstOrDefault(x => x.Token == token);
             UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
             return Ok(userCrendtial);
         }
 
+        [Authorize]
         [HttpGet("info/{userID}")]
         public ActionResult<User> UserInfo(int userID)
         {
-
+            
             User user = _context.Users.FirstOrDefault(x => x.Id == userID);
             if (user != null)
             {
@@ -186,28 +221,6 @@ namespace SyncFoodApi.Controllers.Users
             {
                 return NotFound("There is no user corresponding to this id");
             }
-        }
-
-        [HttpGet("admin/test")]
-        public ActionResult adminTest([FromHeader(Name = "token")] string token)
-        {
-            if (!isTokenValid(token))
-            {
-                return Unauthorized("The given token is invalid");
-            }
-
-            User user = getUserWithToken(token);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            if (isAdmin(user))
-            {
-                return Ok("Your are admin");
-            }
-
-            return Unauthorized();
         }
 
     }
