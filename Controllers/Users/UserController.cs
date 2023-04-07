@@ -12,6 +12,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Protocol;
 
 namespace SyncFoodApi.Controllers.Users
 {
@@ -195,17 +196,16 @@ namespace SyncFoodApi.Controllers.Users
             }
         }
 
-        [Authorize]
         [HttpGet("info/me")]
-        public ActionResult<User> UserInfoSelf([FromHeader(Name = "token")] string token)
+        public ActionResult<User> UserSelfInfo()
         {
 
-            User user = _context.Users.FirstOrDefault(x => x.Token == token);
+            string userEmail = User.FindFirst(ClaimTypes.Email) ?.Value;
+            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
             UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
             return Ok(userCrendtial);
         }
 
-        [Authorize]
         [HttpGet("info/{userID}")]
         public ActionResult<User> UserInfo(int userID)
         {
@@ -222,6 +222,19 @@ namespace SyncFoodApi.Controllers.Users
                 return NotFound("There is no user corresponding to this id");
             }
         }
+
+        /*[HttpPatch("delete/me")]
+        public ActionResult<User> UserDeleteMe()
+        {
+            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            User.ToJToken.
+
+            return Ok(user);
+        }*/
 
     }
 }
