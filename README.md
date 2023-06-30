@@ -27,7 +27,7 @@ location /api {
 Pour plus d'information sur le proxy inversé  
 https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
-"" Compte Administrateur par défaut
+## Compte Administrateur par défaut
 Par défaut un utilisateur Admin est créé automatiquement
 Email : admin@admin
 Mot de passe : adminadmin
