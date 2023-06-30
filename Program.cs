@@ -21,7 +21,22 @@ namespace SyncFoodApi
             var context = new SyncFoodContext();
 
             // créé le fichier de db si il n'existe pas + effectue les migrations si besoin
-            context.Database.EnsureCreated();
+            // + créé un compte admin par défaut
+            if (context.Database.EnsureCreated())
+            {
+                User defaultAdminAccount = new User
+                {
+                    UserName = "Admin",
+                    Discriminator = "#0000",
+                    Email = "admin@admin",
+                    Role = Role.ADMIN,
+                    Password = BCrypt.Net.BCrypt.HashPassword("adminadmin"),
+                    CreationDate = DateTime.Now
+                };
+
+                context.Users.Add(defaultAdminAccount);
+                context.SaveChanges();
+            }
 
             // Add services to the container.
 
