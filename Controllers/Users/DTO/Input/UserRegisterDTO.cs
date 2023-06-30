@@ -4,9 +4,9 @@ namespace SyncFoodApi.Controllers.DTO.Input
 {
     public class UserRegisterDTO
     {
-        public string UserName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public required string UserName { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
 
 
         // Permet de caster un User en USerRegisterDTO
