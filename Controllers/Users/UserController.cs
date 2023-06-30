@@ -53,6 +53,11 @@ namespace SyncFoodApi.Controllers.Users
             }
         }
 
+        /* 
+         * Min 6 caractères
+         * Contient des maj et min
+         */
+
         private bool IsPasswordValid(string password)
         {
             if (password.Length < 6)
@@ -130,8 +135,16 @@ namespace SyncFoodApi.Controllers.Users
         public ActionResult<User> UserRegister(UserRegisterDTO request)
         {
 
-            User registeredUser = new User();
+            User registeredUser = new User 
+            {
+                Email = request.Email,
+                UserName = request.UserName,
+                Discriminator = discriminatorGenerator(request.UserName),
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                CreationDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
 
+            };
 
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
@@ -141,26 +154,13 @@ namespace SyncFoodApi.Controllers.Users
             if (!IsValidEmail(request.Email))
                 return BadRequest("The request email is invalid");
 
-
-            registeredUser.Email = request.Email;
-            registeredUser.UserName = request.UserName;
-
-
-            registeredUser.Discriminator = discriminatorGenerator(registeredUser.UserName);
-
             if (registeredUser.Discriminator == string.Empty)
                 return Conflict("all discriminators are already taken for this username");
 
             if (!IsPasswordValid(request.Password))
                 return BadRequest("The request password is invalid");
 
-            registeredUser.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            registeredUser.CreationDate = DateTime.Now;
-            registeredUser.UpdatedDate = DateTime.Now;
-
-
-            // sauvegarde du nouveau user dans la db
+ 
             _context.Users.Add(registeredUser);
             _context.SaveChanges();
 
@@ -178,7 +178,7 @@ namespace SyncFoodApi.Controllers.Users
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 // TODO TOKEN GENERATION
-                if (user.Token == string.Empty)
+                if (user.Token == null)
                 {
                     user.Token = generateToken(user);
                     _context.Users.Update(user);
