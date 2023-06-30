@@ -7,12 +7,12 @@
     public class User
     {
         public int Id { get; set; }
-        public string UserName { get; set; } = string.Empty;
-        public string Discriminator { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public required string UserName { get; set; }
+        public required string Discriminator { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
         public Role Role { get; set; } = Role.USER;
-        public string Token { get; set; } = string.Empty; 
+        public string? Token { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime UpdatedDate { get; set; }
     }
