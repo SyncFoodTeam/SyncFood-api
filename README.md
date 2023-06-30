@@ -29,7 +29,8 @@ https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
 ## Compte Administrateur par défaut
 Par défaut un utilisateur Admin est créé automatiquement 
+
 Email : admin@admin
-Mot de passe : adminadmin
+Mot de passe : adminadmin 
 
 Il est fortement recommandé de modifier l'email et le mot de passe de ce compte avant une mise en production
