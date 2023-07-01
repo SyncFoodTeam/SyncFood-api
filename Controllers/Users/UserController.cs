@@ -164,6 +164,8 @@ namespace SyncFoodApi.Controllers.Users
                     if (passwordValid)
                         user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+                    user.UpdatedDate = DateTime.Now;
+
                     _context.Users.Update(user);
                     _context.SaveChanges();
 
