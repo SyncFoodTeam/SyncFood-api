@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using NuGet.Protocol;
+using static SyncFoodApi.Controllers.Users.UserUtils;
 
 namespace SyncFoodApi.Controllers.Users
 {
@@ -31,103 +32,7 @@ namespace SyncFoodApi.Controllers.Users
             _configuration = configuration;
         }
 
-        // Fonctions et Méthodes
-
-
-        private bool IsValidEmail(string email)
-        {
-            var trimmedEmail = email.Trim();
-
-            if (trimmedEmail.EndsWith("."))
-            {
-                return false; // suggested by @TK-421
-            }
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == trimmedEmail;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /* 
-         * Min 6 caractères
-         * Contient des maj et min
-         */
-
-        private bool IsPasswordValid(string password)
-        {
-            if (password.Length < 6)
-            {
-                return false;
-            }
-
-            bool containLower = false;
-            bool containUpper = false;
-
-            foreach (char c in password)
-            {
-                if (char.IsLower(c)) containLower = true;
-                if (char.IsUpper(c)) containUpper = true;
-            }
-
-            return (containLower && containUpper);
-        }
-
-        private string discriminatorGenerator(string userName)
-        {
-            Random random = new Random();
-            string discriminator = string.Empty;
-            int retry = 0;
-            do
-            {
-                discriminator = random.Next(1, 10000).ToString("D4"); // retourne une string de 4 digits exemple 5 en int => 0005 en string
-                retry++;
-
-            } while (isUserNameDiscriminatorExist(userName, discriminator) && retry < 10000); // On continue de générer un nouveau discriminant tant que celui généré actuellement existe déjà et que le nombre d'essais est inférieur au nombre total de possibilité (pour éviter une boucle infini dans le cas extrême où toute les combinaisons seraient déjà prises
-
-            if (_context.Users.Any(x => x.Discriminator == discriminator))
-            {
-                return string.Empty;
-            }
-
-            return discriminator;
-        }
-
-        // Détermine si un combo pseudo+discriminant existe déjà (exemple : monSuperPseudo#8392)
-        private bool isUserNameDiscriminatorExist(string wantedUserName, string wantedDiscriminator)
-        {
-
-            var usersList = _context.Users.Where(x => x.UserName.ToLower() == wantedUserName.ToLower());
-            bool exist = usersList.Any(x => x.Discriminator == wantedDiscriminator);
-            return exist;
-        }
-
-        private string generateToken(User user)
-        {
-            List<Claim> claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value));
-
-            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var token = new JwtSecurityToken(
-                claims:claims,
-                expires: DateTime.Now.AddDays(15),
-                signingCredentials: cred
-                );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return jwt;
-        }
+       
 
         // ROUTES
 
@@ -135,11 +40,11 @@ namespace SyncFoodApi.Controllers.Users
         public ActionResult<User> UserRegister(UserRegisterDTO request)
         {
 
-            User registeredUser = new User 
+            User registeredUser = new User
             {
                 Email = request.Email,
                 UserName = request.UserName,
-                Discriminator = discriminatorGenerator(request.UserName),
+                Discriminator = discriminatorGenerator(_context, request.UserName),
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 CreationDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
@@ -148,19 +53,14 @@ namespace SyncFoodApi.Controllers.Users
 
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
-            if (EmailAlreadyUsed)
-                return Conflict("This email address is already used");
+            if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
+                return BadRequest();
 
-            if (!IsValidEmail(request.Email))
-                return BadRequest("The request email is invalid");
 
             if (registeredUser.Discriminator == string.Empty)
                 return Conflict("all discriminators are already taken for this username");
 
-            if (!IsPasswordValid(request.Password))
-                return BadRequest("The request password is invalid");
 
- 
             _context.Users.Add(registeredUser);
             _context.SaveChanges();
 
@@ -177,10 +77,10 @@ namespace SyncFoodApi.Controllers.Users
 
             if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                // TODO TOKEN GENERATION
+
                 if (user.Token == null)
                 {
-                    user.Token = generateToken(user);
+                    user.Token = generateToken(_configuration, user);
                     _context.Users.Update(user);
                     _context.SaveChanges();
                 }
@@ -199,17 +99,23 @@ namespace SyncFoodApi.Controllers.Users
         [HttpGet("info/me")]
         public ActionResult<User> UserSelfInfo()
         {
-
-            string userEmail = User.FindFirst(ClaimTypes.Email) ?.Value;
+            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
-            UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
-            return Ok(userCrendtial);
+            if (user != null)
+            {
+                UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
+                return Ok(userCrendtial);
+
+            }
+
+            else
+                return NotFound();
         }
 
         [HttpGet("info/{userID}")]
         public ActionResult<User> UserInfo(int userID)
         {
-            
+
             User user = _context.Users.FirstOrDefault(x => x.Id == userID);
             if (user != null)
             {
@@ -223,18 +129,49 @@ namespace SyncFoodApi.Controllers.Users
             }
         }
 
-        /*[HttpPatch("delete/me")]
+        [HttpPatch("update/me")]
+        public ActionResult<User> UserUpdateMe(string? NewEmail, string? NewPassword)
+        {
+            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            if (user != null)
+            {
+                // si l'email n'est pas déjà utilisé et que le mot de passe est valide on met à jour
+                if (_context.Users.FirstOrDefault(x => x.Email == NewEmail) == null && IsPasswordValid(NewPassword))
+                {
+                    user.Email = NewEmail;
+                    user.Password = NewPassword;
+                    UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                    return Ok(userPrivate);
+                }
+
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
+            return NotFound();
+        }
+
+
+        [HttpDelete("delete/me")]
         public ActionResult<User> UserDeleteMe()
         {
             string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            User.ToJToken.
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                return Ok(user);
+            }
 
-            return Ok(user);
-        }*/
+            return NotFound();
+
+        }
 
     }
 }
