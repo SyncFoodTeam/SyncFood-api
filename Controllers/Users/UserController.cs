@@ -130,28 +130,84 @@ namespace SyncFoodApi.Controllers.Users
         }
 
         [HttpPatch("update/me")]
-        public ActionResult<User> UserUpdateMe(string? NewEmail, string? NewPassword)
+        public ActionResult<User> UserUpdateMe(UserUpdateDTO request)
         {
             string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+
             if (user != null)
             {
-                // si l'email n'est pas déjà utilisé et que le mot de passe est valide on met à jour
-                if (_context.Users.FirstOrDefault(x => x.Email == NewEmail) == null && IsPasswordValid(NewPassword))
+                bool emailValid = false;
+                bool passwordValid = false;
+                bool updateUser = false;
+
+                if (request.Email != null)
                 {
-                    user.Email = NewEmail;
-                    user.Password = NewPassword;
+                    emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+                }
+
+                if (request.Password != null)
+                {
+                    passwordValid = IsPasswordValid(request.Password);
+                }
+
+                if (request.Email != null || request.Password != null)
+                {
+                    updateUser = emailValid || passwordValid;
+                }
+
+                if (updateUser)
+                {
+                    if (emailValid)
+                        user.Email = request.Email;
+
+                    if (passwordValid)
+                        user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
+
                     UserPrivateDTO userPrivate = (UserPrivateDTO)user;
                     return Ok(userPrivate);
                 }
 
                 else
-                {
                     return BadRequest();
-                }
+
+
             }
 
-            return NotFound();
+            else
+                return NotFound();
+            // si l'utilisateur autherntifié n'existe pas ou si aucune des valeurs email / mot de passe n'est renseigné on renvoi une badRequest
+           /* if (user != null && (request.Email != null || request.Password != null))
+            {
+                // si l'email n'est pas déjà utilisé et/ou que le nouveau mot de passe est valide alors on met à jour
+                bool emailValid= false;
+                bool passwordValid = false;
+
+                if (request.Email != null)
+                    emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+                
+                if (request.Password != null)
+                        passwordValid = IsPasswordValid(request.Password);
+
+                bool updateUser = (request.Email != null && emailValid);
+
+                if (updateUser)
+                {
+
+                    user.Email = request.Email;
+                    user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                    UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                    return Ok(userPrivate);
+                }
+
+                else
+                    return BadRequest();
+            }
+
+            return BadRequest();*/
         }
 
 
