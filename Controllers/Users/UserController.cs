@@ -85,15 +85,14 @@ namespace SyncFoodApi.Controllers.Users
 
             else
             {
-                return Unauthorized("The given email or password are incorrect");
+                return Unauthorized();
             }
         }
 
         [HttpGet("info/me")]
         public ActionResult<User> UserSelfInfo()
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            var user = getLogguedUser(User, _context);
             if (user != null)
             {
                 UserPrivateDTO userPrivate = (UserPrivateDTO)user;
@@ -125,8 +124,7 @@ namespace SyncFoodApi.Controllers.Users
         [HttpPatch("update/me")]
         public ActionResult<User> UserUpdateMe(UserUpdateDTO request)
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            var user = getLogguedUser(User, _context);
 
             if (user != null)
             {
@@ -179,8 +177,7 @@ namespace SyncFoodApi.Controllers.Users
         [HttpDelete("delete/me")]
         public ActionResult<User> UserDeleteMe()
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            var user = getLogguedUser(User, _context);
 
             if (user != null)
             {

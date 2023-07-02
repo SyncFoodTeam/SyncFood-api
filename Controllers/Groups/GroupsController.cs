@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using SyncFoodApi.Models;
 using SyncFoodApi.dbcontext;
 using Microsoft.AspNetCore.Authorization;
+using SyncFoodApi.Controllers.Groups.DTO.Input;
+using static SyncFoodApi.Controllers.Users.UserUtils;
 
 namespace SyncFoodApi.Controllers.Groups
 {
@@ -26,11 +28,28 @@ namespace SyncFoodApi.Controllers.Groups
         }
 
 
-        /*[HttpPost("create")]
-        public ActionResult<Group> GroupCreate()
+        [HttpPost("create")]
+        public ActionResult<Group> GroupCreate(GroupCreateDTO request)
         {
+            var user = getLogguedUser(User, _context);
+            if (user != null)
+            {
+                Group group = new Group
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    Budget = request.budget,
+                    Owner = user
+                };
 
-        }*/
+                _context.Groups.Add(group);
+                _context.SaveChanges();
+                return Ok(group);
+            }
+
+            else
+                return Unauthorized();
+        }
 
     }
 }
