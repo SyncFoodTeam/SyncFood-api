@@ -26,3 +26,12 @@ location /api {
 (Modifier le port 5104 avec celui de l'api si vous l'avez modifié)  
 Pour plus d'information sur le proxy inversé  
 https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
+
+## Compte Administrateur par défaut
+Par défaut un utilisateur Admin est créé automatiquement 
+
+Email : admin@admin 
+
+Mot de passe : adminadmin 
+
+Il est fortement recommandé de modifier l'email et le mot de passe de ce compte avant une mise en production
