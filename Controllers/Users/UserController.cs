@@ -1,18 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
-using BCrypt.Net;
-using NuGet.Common;
 using SyncFoodApi.Controllers.Users.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Input;
 using SyncFoodApi.Controllers.DTO.Output;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
-using NuGet.Protocol;
 using static SyncFoodApi.Controllers.Users.UserUtils;
 
 namespace SyncFoodApi.Controllers.Users
@@ -32,7 +25,7 @@ namespace SyncFoodApi.Controllers.Users
             _configuration = configuration;
         }
 
-       
+
 
         // ROUTES
 
@@ -85,8 +78,8 @@ namespace SyncFoodApi.Controllers.Users
                     _context.SaveChanges();
                 }
 
-                UserPrivateDTO userCredential = (UserPrivateDTO)user;
-                return Ok(userCredential);
+                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                return Ok(userPrivate);
 
             }
 
@@ -103,8 +96,8 @@ namespace SyncFoodApi.Controllers.Users
             User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
             if (user != null)
             {
-                UserPrivateDTO userCrendtial = (UserPrivateDTO)user;
-                return Ok(userCrendtial);
+                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                return Ok(userPrivate);
 
             }
 
@@ -119,8 +112,8 @@ namespace SyncFoodApi.Controllers.Users
             User user = _context.Users.FirstOrDefault(x => x.Id == userID);
             if (user != null)
             {
-                UserPublicDTO userInfo = (UserPublicDTO)user;
-                return Ok(userInfo);
+                UserPublicDTO userPublic = (UserPublicDTO)user;
+                return Ok(userPublic);
             }
 
             else
@@ -176,40 +169,10 @@ namespace SyncFoodApi.Controllers.Users
                 else
                     return BadRequest();
 
-
             }
 
             else
                 return NotFound();
-            // si l'utilisateur autherntifié n'existe pas ou si aucune des valeurs email / mot de passe n'est renseigné on renvoi une badRequest
-           /* if (user != null && (request.Email != null || request.Password != null))
-            {
-                // si l'email n'est pas déjà utilisé et/ou que le nouveau mot de passe est valide alors on met à jour
-                bool emailValid= false;
-                bool passwordValid = false;
-
-                if (request.Email != null)
-                    emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
-                
-                if (request.Password != null)
-                        passwordValid = IsPasswordValid(request.Password);
-
-                bool updateUser = (request.Email != null && emailValid);
-
-                if (updateUser)
-                {
-
-                    user.Email = request.Email;
-                    user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
-                    UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                    return Ok(userPrivate);
-                }
-
-                else
-                    return BadRequest();
-            }
-
-            return BadRequest();*/
         }
 
 
@@ -224,7 +187,7 @@ namespace SyncFoodApi.Controllers.Users
                 _context.Users.Remove(user);
                 _context.SaveChanges();
                 UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(user);
+                return Ok(userPrivate);
             }
 
             return NotFound();

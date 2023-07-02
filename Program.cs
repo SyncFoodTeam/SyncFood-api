@@ -21,9 +21,9 @@ namespace SyncFoodApi
             var context = new SyncFoodContext();
 
             // créé le fichier de db si il n'existe pas + effectue les migrations si besoin
-            // + créé un compte admin par défaut
             if (context.Database.EnsureCreated())
             {
+                // créé un compte admin par défaut
                 User defaultAdminAccount = new User
                 {
                     UserName = "Admin",
@@ -42,7 +42,7 @@ namespace SyncFoodApi
 
             builder.Services.AddControllers();
 
-            
+
             builder.Services.AddDbContext<SyncFoodContext>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,9 +73,9 @@ namespace SyncFoodApi
                         ValidateAudience = false
                     };
                 });
-            
-                
-                var app = builder.Build();
+
+
+            var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -96,7 +96,7 @@ namespace SyncFoodApi
             app.MapControllers();
 
             app.Run();
-            
+
         }
     }
 }
