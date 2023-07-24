@@ -10,7 +10,7 @@ namespace SyncFoodApi.Controllers.Groups.DTO.Output
         public float Budget { get; set; } = 0f;
         public List<User> Members { get; set; } = new List<User>();
         public required User Owner { get; set; }
-        public List<FoodContainer> foodContainers { get; set; } = new List<FoodContainer>();
+        public List<FoodContainer> FoodContainers { get; set; } = new List<FoodContainer>();
         public ShoppingList? ShoppingList { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
@@ -24,7 +24,7 @@ namespace SyncFoodApi.Controllers.Groups.DTO.Output
                 Budget = group.Budget,
                 Members = group.Members,
                 Owner = group.Owner,
-                foodContainers = group.foodContainers,
+                FoodContainers = group.FoodContainers,
                 ShoppingList = group.ShoppingList,
                 CreationDate = group.CreationDate
             };

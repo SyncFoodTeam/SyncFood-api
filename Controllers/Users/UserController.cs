@@ -46,6 +46,7 @@ namespace SyncFoodApi.Controllers.Users
 
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
+            // si l'email est déjà utilisé ou invalide ou encore si le mot de passe n'est pas valide on return
             if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
                 return BadRequest();
 
