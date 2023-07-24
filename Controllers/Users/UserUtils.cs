@@ -107,5 +107,12 @@ namespace SyncFoodApi.Controllers.Users
 
             return jwt;
         }
+
+        public static User getLogguedUser(ClaimsPrincipal User, SyncFoodContext _context)
+        {
+            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            return user;
+        }
     }
 }

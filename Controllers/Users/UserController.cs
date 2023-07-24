@@ -85,24 +85,23 @@ namespace SyncFoodApi.Controllers.Users
 
             else
             {
-                return Unauthorized("The given email or password are incorrect");
+                return Unauthorized();
             }
         }
 
         [HttpGet("info/me")]
         public ActionResult<User> UserSelfInfo()
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
-            if (user != null)
-            {
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
+            var user = getLogguedUser(User, _context);
+            // if (user != null)
+            // {
+            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+            return Ok(userPrivate);
 
-            }
+            // }
 
-            else
-                return NotFound();
+            // else
+            // return NotFound();
         }
 
         [HttpGet("info/{userID}")]
@@ -125,72 +124,70 @@ namespace SyncFoodApi.Controllers.Users
         [HttpPatch("update/me")]
         public ActionResult<User> UserUpdateMe(UserUpdateDTO request)
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            var user = getLogguedUser(User, _context);
 
-            if (user != null)
+            // if (user != null)
+            // {
+            bool emailValid = false;
+            bool passwordValid = false;
+            bool updateUser = false;
+
+            if (request.Email != null)
             {
-                bool emailValid = false;
-                bool passwordValid = false;
-                bool updateUser = false;
+                emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+            }
 
-                if (request.Email != null)
-                {
-                    emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
-                }
+            if (request.Password != null)
+            {
+                passwordValid = IsPasswordValid(request.Password);
+            }
 
-                if (request.Password != null)
-                {
-                    passwordValid = IsPasswordValid(request.Password);
-                }
+            if (request.Email != null || request.Password != null)
+            {
+                updateUser = emailValid || passwordValid;
+            }
 
-                if (request.Email != null || request.Password != null)
-                {
-                    updateUser = emailValid || passwordValid;
-                }
+            if (updateUser)
+            {
+                if (emailValid)
+                    user.Email = request.Email;
 
-                if (updateUser)
-                {
-                    if (emailValid)
-                        user.Email = request.Email;
+                if (passwordValid)
+                    user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-                    if (passwordValid)
-                        user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                user.UpdatedDate = DateTime.Now;
 
-                    user.UpdatedDate = DateTime.Now;
+                _context.Users.Update(user);
+                _context.SaveChanges();
 
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
-
-                    UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                    return Ok(userPrivate);
-                }
-
-                else
-                    return BadRequest();
-
+                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                return Ok(userPrivate);
             }
 
             else
-                return NotFound();
+                return BadRequest();
+
+            //}
+
+            // else
+            // return NotFound();
         }
 
 
         [HttpDelete("delete/me")]
         public ActionResult<User> UserDeleteMe()
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            var user = getLogguedUser(User, _context);
 
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                _context.SaveChanges();
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
-            }
+            // if (user != null)
+            // {
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+            return Ok(userPrivate);
+            // }
 
-            return NotFound();
+            // return NotFound();
 
         }
 

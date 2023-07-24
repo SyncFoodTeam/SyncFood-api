@@ -23,7 +23,7 @@ namespace SyncFoodApi
             // créé le fichier de db si il n'existe pas + effectue les migrations si besoin
             if (context.Database.EnsureCreated())
             {
-                // créé un compte admin par défaut
+                // créé un compte admin par défaut (seulement dans le cas où on a eu besoin de créé le fichier de db
                 User defaultAdminAccount = new User
                 {
                     UserName = "Admin",
@@ -48,7 +48,7 @@ namespace SyncFoodApi
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
-            // Ajoute à la gui de swagger le champ token
+            // Ajoute le champ token à la gui de swagger
             builder.Services.AddSwaggerGen(options =>
             {
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -91,7 +91,6 @@ namespace SyncFoodApi
             app.UseAuthentication();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

@@ -10,7 +10,7 @@
         public required User Owner { get; set; }
         public List<FoodContainer> foodContainers { get; set; } = new List<FoodContainer>();
         public ShoppingList? ShoppingList { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.Now;
+        public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }
 }
