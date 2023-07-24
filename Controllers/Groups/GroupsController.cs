@@ -32,23 +32,23 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupCreate(GroupCreateDTO request)
         {
             var user = getLogguedUser(User, _context);
-            if (user != null)
+            //if (user != null)
+            //{
+            Group group = new Group
             {
-                Group group = new Group
-                {
-                    Name = request.Name,
-                    Description = request.Description,
-                    Budget = request.budget,
-                    Owner = user
-                };
+                Name = request.Name,
+                Description = request.Description,
+                Budget = request.Budget,
+                Owner = user
+            };
 
-                _context.Groups.Add(group);
-                _context.SaveChanges();
-                return Ok(group);
-            }
+            _context.Groups.Add(group);
+            _context.SaveChanges();
+            return Ok(group);
+            //}
 
-            else
-                return Unauthorized();
+            //else
+                //return Unauthorized();
         }
 
     }
