@@ -89,7 +89,7 @@ namespace SyncFoodApi.Controllers.Users
         {
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -110,8 +110,8 @@ namespace SyncFoodApi.Controllers.Users
 
         public static User getLogguedUser(ClaimsPrincipal User, SyncFoodContext _context)
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
+            int userID = int.Parse( User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            User user = _context.Users.FirstOrDefault(x => x.Id == userID);
             return user;
         }
     }

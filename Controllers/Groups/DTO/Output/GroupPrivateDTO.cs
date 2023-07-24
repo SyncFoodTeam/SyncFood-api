@@ -1,4 +1,6 @@
-﻿using SyncFoodApi.Models;
+﻿using SyncFoodApi.Controllers.DTO.Output;
+using SyncFoodApi.Models;
+using static SyncFoodApi.Controllers.Groups.GroupUtils;
 
 namespace SyncFoodApi.Controllers.Groups.DTO.Output
 {
@@ -8,8 +10,8 @@ namespace SyncFoodApi.Controllers.Groups.DTO.Output
         public required string Name { get; set; }
         public string? Description { get; set; }
         public float Budget { get; set; } = 0f;
-        public List<User> Members { get; set; } = new List<User>();
-        public required User Owner { get; set; }
+        public List<UserPublicDTO> Members { get; set; } = new List<UserPublicDTO>();
+        public required UserPublicDTO Owner { get; set; }
         public List<FoodContainer> FoodContainers { get; set; } = new List<FoodContainer>();
         public ShoppingList? ShoppingList { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
@@ -22,8 +24,8 @@ namespace SyncFoodApi.Controllers.Groups.DTO.Output
                 Name = group.Name,
                 Description = group.Description,
                 Budget = group.Budget,
-                Members = group.Members,
-                Owner = group.Owner,
+                Members = getPublicMembers(group.Members),
+                Owner = (UserPublicDTO)group.Owner,
                 FoodContainers = group.FoodContainers,
                 ShoppingList = group.ShoppingList,
                 CreationDate = group.CreationDate

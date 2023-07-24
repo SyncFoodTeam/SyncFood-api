@@ -9,8 +9,10 @@ using SyncFoodApi.Models;
 using SyncFoodApi.dbcontext;
 using Microsoft.AspNetCore.Authorization;
 using SyncFoodApi.Controllers.Groups.DTO.Input;
-using static SyncFoodApi.Controllers.Users.UserUtils;
 using SyncFoodApi.Controllers.Groups.DTO.Output;
+using SyncFoodApi.Controllers.DTO.Output;
+using static SyncFoodApi.Controllers.Users.UserUtils;
+using static SyncFoodApi.Controllers.Groups.GroupUtils;
 
 namespace SyncFoodApi.Controllers.Groups
 {
@@ -27,7 +29,6 @@ namespace SyncFoodApi.Controllers.Groups
             _context = context;
             _configuration = configuration;
         }
-
 
         [HttpPost("create")]
         public ActionResult<Group> GroupCreate(GroupCreateDTO request)
@@ -46,6 +47,8 @@ namespace SyncFoodApi.Controllers.Groups
                 Owner = user
             };
 
+            group.Members.Add(user);
+
             _context.Groups.Add(group);
             _context.SaveChanges();
             return Ok((GroupPrivateDTO)group);
@@ -59,20 +62,23 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupEdit(GroupEditDTO request,int groupID)
         {
             var user = getLogguedUser(User, _context);
-            Group group = _context.Groups.FirstOrDefault(x => x.Id == groupID);
+            var group = _context.Groups.FirstOrDefault(x => x.Id == groupID);
 
             if (group != null)
             {
-                if (group.Owner == user)
+                if (group.Owner.Id == user.Id)
                 {
-                    if (request.Name != string.Empty)
+                    if (request.Name != string.Empty && request.Name != null)
                         group.Name = request.Name;
-                    if (request.Description != string.Empty)
+
+                    if (request.Description != string.Empty && request.Description != null)
                         group.Description = request.Description;
-                    if (request.Budget != 0f)
+
+                    if (request.Budget != 0f )
                         group.Budget = request.Budget;
 
-                    _context.Groups.Add(group);
+                    group.UpdatedDate = DateTime.Now;
+                    _context.Groups.Update(group);
                     _context.SaveChanges();
 
                     return Ok((GroupPrivateDTO)group);
@@ -80,6 +86,29 @@ namespace SyncFoodApi.Controllers.Groups
                 }
                 else
                     return Unauthorized();
+            }
+
+            else
+                return NotFound();
+
+        }
+
+        [HttpGet("mine")]
+        public ActionResult<List<GroupPrivateDTO>> GroupGetMine()
+        {
+            var user = getLogguedUser(User, _context);
+
+            List<GroupPrivateDTO> publicGroups = new List<GroupPrivateDTO>();
+            var groups = _context.Groups.Where(x => x.Members.Contains(user)).ToList();
+
+            if (groups.Count > 0)
+            {
+                foreach (Group group in groups)
+                {
+                    Console.WriteLine(group.Name);
+                    publicGroups.Add((GroupPrivateDTO)group);
+                }
+                return Ok(publicGroups);
             }
 
             else
@@ -95,7 +124,7 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (group != null)
             {
-                if (group.Owner == user)
+                if (group.Owner.Id == user.Id)
                 {
                     _context.Groups.Remove(group);
                     _context.SaveChanges();
@@ -119,7 +148,7 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (group != null && userToAdd != null)
             {
-                if (group.Owner == user)
+                if (group.Owner.Id == user.Id)
                 {
                     if (!group.Members.Contains(userToAdd))
                     {
@@ -149,9 +178,9 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (group != null && userToRemove != null)
             {
-                if (group.Owner == user)
+                if (group.Owner.Id == user.Id)
                 {
-                    if (group.Members.Contains(userToRemove)){
+                    if (group.Members.Contains(userToRemove) && userID != group.Owner.Id){
 
                         group.Members.Remove(userToRemove);
                         _context.SaveChanges();
@@ -168,6 +197,33 @@ namespace SyncFoodApi.Controllers.Groups
 
             else
                 return NotFound();
+        }
+
+        [HttpPatch("changeOwner")]
+        public ActionResult<UserPublicDTO> GroupChangeOwner(int groupID, int userID)
+        {
+            var user = getLogguedUser(User, _context);
+            Group group = _context.Groups.FirstOrDefault(x => x.Id == groupID);
+            User newOwner = _context.Users.FirstOrDefault(x => x.Id == userID);
+
+            if (user != null && newOwner != null && group != null)
+            {
+                if (user.Id == group.Id)
+                {
+                    group.Owner = newOwner;
+                    _context.Groups.Update(group);
+                    _context.SaveChanges();
+
+                    return Ok((GroupPrivateDTO)group);
+                }
+
+                else
+                    return Unauthorized();
+            }
+
+            else
+                return NotFound();
+
         }
 
     }

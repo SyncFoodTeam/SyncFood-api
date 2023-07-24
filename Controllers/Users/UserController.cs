@@ -58,9 +58,7 @@ namespace SyncFoodApi.Controllers.Users
             _context.Users.Add(registeredUser);
             _context.SaveChanges();
 
-            UserPrivateDTO userPrivateDTO = (UserPrivateDTO)registeredUser;
-
-            return Ok(userPrivateDTO);
+            return Ok((UserPrivateDTO)registeredUser);
         }
 
         [HttpPost("login"), AllowAnonymous]
@@ -79,8 +77,7 @@ namespace SyncFoodApi.Controllers.Users
                     _context.SaveChanges();
                 }
 
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
+                return Ok((UserPrivateDTO)user);
 
             }
 
@@ -94,15 +91,10 @@ namespace SyncFoodApi.Controllers.Users
         public ActionResult<User> UserSelfInfo()
         {
             var user = getLogguedUser(User, _context);
-            // if (user != null)
-            // {
-            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-            return Ok(userPrivate);
-
-            // }
-
-            // else
-            // return NotFound();
+            if (user != null)
+                return Ok((UserPrivateDTO)user);
+            else
+                return Unauthorized();
         }
 
         [HttpGet("info/{userID}")]
@@ -117,9 +109,7 @@ namespace SyncFoodApi.Controllers.Users
             }
 
             else
-            {
                 return NotFound("There is no user corresponding to this id");
-            }
         }
 
         [HttpPatch("update/me")]
@@ -127,51 +117,51 @@ namespace SyncFoodApi.Controllers.Users
         {
             var user = getLogguedUser(User, _context);
 
-            // if (user != null)
-            // {
-            bool emailValid = false;
-            bool passwordValid = false;
-            bool updateUser = false;
-
-            if (request.Email != null)
+            if (user != null)
             {
-                emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
-            }
+                bool emailValid = false;
+                bool passwordValid = false;
+                bool updateUser = false;
 
-            if (request.Password != null)
-            {
-                passwordValid = IsPasswordValid(request.Password);
-            }
+                if (request.Email != null)
+                {
+                    emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+                }
 
-            if (request.Email != null || request.Password != null)
-            {
-                updateUser = emailValid || passwordValid;
-            }
+                if (request.Password != null)
+                {
+                    passwordValid = IsPasswordValid(request.Password);
+                }
 
-            if (updateUser)
-            {
-                if (emailValid)
-                    user.Email = request.Email;
+                if (request.Email != null || request.Password != null)
+                {
+                    updateUser = emailValid || passwordValid;
+                }
 
-                if (passwordValid)
-                    user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                if (updateUser)
+                {
+                    if (emailValid)
+                        user.Email = request.Email;
 
-                user.UpdatedDate = DateTime.Now;
+                    if (passwordValid)
+                        user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-                _context.Users.Update(user);
-                _context.SaveChanges();
+                    user.UpdatedDate = DateTime.Now;
 
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
+
+                    return Ok((UserPrivateDTO)user);
+                }
+
+                else
+                    return BadRequest();
+
             }
 
             else
-                return BadRequest();
+                return Unauthorized();
 
-            //}
-
-            // else
-            // return NotFound();
         }
 
 
@@ -179,16 +169,18 @@ namespace SyncFoodApi.Controllers.Users
         public ActionResult<User> UserDeleteMe()
         {
             var user = getLogguedUser(User, _context);
+            // manager
+            if (user != null)
+            {
 
-            // if (user != null)
-            // {
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-            return Ok(userPrivate);
-            // }
+                _context.Users.Remove(user);
+                _context.SaveChanges();
 
-            // return NotFound();
+                return Ok((UserPrivateDTO)user);
+            }
+
+            else
+                return Unauthorized();
 
         }
 
