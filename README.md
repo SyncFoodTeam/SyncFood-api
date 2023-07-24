@@ -8,6 +8,10 @@
 ```
 git clone https://github.com/SyncFoodTeam/SyncFood-api
 ```
+### Compiler le projet en version de développement
+```
+dotnet publish --configuration Debug
+```
 ### Compiler le projet en version de production
 ```
 dotnet publish --configuration Release
