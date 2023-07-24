@@ -4,6 +4,7 @@ namespace SyncFoodApi.Controllers.Users.DTO.Input
 {
     public class UserUpdateDTO
     {
+        public string? UserName { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
 
@@ -12,7 +13,7 @@ namespace SyncFoodApi.Controllers.Users.DTO.Input
 
         public static explicit operator UserUpdateDTO(User user)
         {
-            return new UserUpdateDTO { Email = user.Email, Password = user.Password };
+            return new UserUpdateDTO { UserName = user.UserName, Email = user.Email, Password = user.Password };
         }
     }
 }

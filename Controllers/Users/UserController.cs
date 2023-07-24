@@ -121,7 +121,24 @@ namespace SyncFoodApi.Controllers.Users
             {
                 bool emailValid = false;
                 bool passwordValid = false;
+                bool userNameUpdated = false;
                 bool updateUser = false;
+
+                string newUserName = string.Empty;
+                string newDiscriminator = string.Empty;
+
+                if (request.UserName != null)
+                {
+                    newUserName = request.UserName;
+                    newDiscriminator = discriminatorGenerator(_context, request.UserName);
+                    if (newDiscriminator != null)
+                    {
+                        userNameUpdated = true;
+                    }
+
+                    else
+                        return Conflict();
+                }
 
                 if (request.Email != null)
                 {
@@ -133,10 +150,9 @@ namespace SyncFoodApi.Controllers.Users
                     passwordValid = IsPasswordValid(request.Password);
                 }
 
-                if (request.Email != null || request.Password != null)
-                {
-                    updateUser = emailValid || passwordValid;
-                }
+
+                updateUser = emailValid || passwordValid || userNameUpdated;
+
 
                 if (updateUser)
                 {
@@ -145,6 +161,12 @@ namespace SyncFoodApi.Controllers.Users
 
                     if (passwordValid)
                         user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                    if (userNameUpdated)
+                    {
+                        user.UserName = newUserName;
+                        user.Discriminator = newDiscriminator;
+                    }
 
                     user.UpdatedDate = DateTime.Now;
 
