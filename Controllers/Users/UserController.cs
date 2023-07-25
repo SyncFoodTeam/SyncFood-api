@@ -65,24 +65,27 @@ namespace SyncFoodApi.Controllers.Users
 
             User user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == request.Email.ToLower());
 
-            if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            if (user != null)
             {
-
-                if (user.Token == null)
+                if (BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
                 {
-                    user.Token = generateToken(_configuration, user);
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
+                    if (user.Token == null)
+                    {
+                        user.Token = generateToken(_configuration, user);
+                        _context.Users.Update(user);
+                        _context.SaveChanges();
+                    }
+                    return Ok((UserPrivateDTO)user);
+
                 }
 
-                return Ok((UserPrivateDTO)user);
+                else
+                    return BadRequest();
 
             }
 
             else
-            {
                 return Unauthorized();
-            }
         }
 
         [HttpGet("info/me")]
@@ -107,7 +110,7 @@ namespace SyncFoodApi.Controllers.Users
             }
 
             else
-                return NotFound("There is no user corresponding to this id");
+                return NotFound();
         }
 
         [HttpGet("info/username/{userNameDiscriminator}")]

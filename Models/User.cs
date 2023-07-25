@@ -13,6 +13,7 @@
         public required string Password { get; set; }
         public Role Role { get; set; } = Role.USER;
         public string Token { get; set; }
+        //public List<Group> Groups { get; set; } = new List<Group>();
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }

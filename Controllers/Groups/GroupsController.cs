@@ -34,7 +34,6 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupCreate(GroupCreateDTO request)
         {
             var user = getLogguedUser(User, _context);
-            Console.WriteLine(user);
             if (_context.Groups.Include(group => group.Owner).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user))
             {
                 return Conflict();
@@ -107,7 +106,6 @@ namespace SyncFoodApi.Controllers.Groups
             {
                 foreach (Group group in groups)
                 {
-                    Console.WriteLine(group.Name);
                     publicGroups.Add((GroupPrivateDTO)group);
                 }
                 return Ok(publicGroups);
@@ -134,7 +132,7 @@ namespace SyncFoodApi.Controllers.Groups
                 }
 
                 else
-                    return Unauthorized();
+                    return Forbid();
             }
 
             else
@@ -165,7 +163,7 @@ namespace SyncFoodApi.Controllers.Groups
                 }
 
                 else
-                    return Unauthorized();
+                    return Forbid();
             }
 
             else
@@ -196,7 +194,7 @@ namespace SyncFoodApi.Controllers.Groups
                 }
 
                 else
-                    return Unauthorized();
+                    return Forbid();
             }
 
             else
@@ -229,7 +227,7 @@ namespace SyncFoodApi.Controllers.Groups
                 }
 
                 else
-                    return Unauthorized();
+                    return Forbid();
             }
 
             else
