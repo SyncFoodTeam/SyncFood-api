@@ -9,7 +9,7 @@ namespace SyncFoodApi.Controllers.Users.DTO
         public required string Discriminator { get; set; }
         public required string Email { get; set; }
         public Role Role { get; set; } = Role.USER;
-        public string? Token { get; set; }
+        public string Token { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime UpdatedDate { get; set; }
 

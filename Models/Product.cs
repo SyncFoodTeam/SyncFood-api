@@ -24,8 +24,8 @@
         public required string Name { get; set; }
         public required float Price { get; set; }
         public required int BarCode { get; set; }
-        public NutriScore? NutriScore { get; set; }
-        public float nutritionalValue { get; set; } = 0f;
+        public NutriScore NutriScore { get; set; }
+        public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;

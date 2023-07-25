@@ -8,12 +8,12 @@ namespace SyncFoodApi.Controllers.Groups.DTO
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public float Budget { get; set; } = 0f;
         public List<UserPublicDTO> Members { get; set; } = new List<UserPublicDTO>();
         public required UserPublicDTO Owner { get; set; }
         public List<FoodContainer> FoodContainers { get; set; } = new List<FoodContainer>();
-        public ShoppingList? ShoppingList { get; set; }
+        public ShoppingList ShoppingList { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
         public static explicit operator GroupPrivateDTO(Group group)

@@ -5,7 +5,7 @@ namespace SyncFoodApi.Controllers.Groups.DTO
     public class GroupCreateDTO
     {
         public required string Name { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public float Budget { get; set; } = 0f;
 
 
@@ -19,8 +19,8 @@ namespace SyncFoodApi.Controllers.Groups.DTO
 
     public class GroupEditDTO
     {
-        public string? Name { get; set; }
-        public string? Description { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
         public float Budget { get; set; } = 0f;
 
 
