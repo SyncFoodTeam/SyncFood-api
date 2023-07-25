@@ -1,8 +1,8 @@
-﻿using SyncFoodApi.Controllers.DTO.Output;
+﻿using SyncFoodApi.Controllers.Users.DTO;
 using SyncFoodApi.Models;
 using static SyncFoodApi.Controllers.Groups.GroupUtils;
 
-namespace SyncFoodApi.Controllers.Groups.DTO.Output
+namespace SyncFoodApi.Controllers.Groups.DTO
 {
     public class GroupPrivateDTO
     {

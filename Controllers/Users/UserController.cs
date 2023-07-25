@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
-using SyncFoodApi.Controllers.Users.DTO.Input;
-using SyncFoodApi.Controllers.DTO.Input;
-using SyncFoodApi.Controllers.DTO.Output;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using static SyncFoodApi.Controllers.Users.UserUtils;
+using SyncFoodApi.Controllers.Users.DTO;
 
 namespace SyncFoodApi.Controllers.Users
 {

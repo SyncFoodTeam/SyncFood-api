@@ -142,15 +142,15 @@ namespace SyncFoodApi.Controllers.Groups
         }
 
         [HttpGet("debug")]
-        public ActionResult<Group> Debug(int groupID, int userID)
+        public ActionResult<List<Group>> Debug(int groupID, int userID)
         {
             var user = getLogguedUser(User, _context);
-            Group group = _context.Groups.First(x => x.Id == groupID);
+            List<Group> groups = _context.Groups.ToList();
            // User userToAdd = _context.Users.FirstOrDefault(x => x.Id == userID);
 
            //  Console.WriteLine(group.Owner.Id);
 
-            return Ok(group);
+            return Ok(groups);
  
     }
 

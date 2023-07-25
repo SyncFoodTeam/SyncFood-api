@@ -1,4 +1,4 @@
-﻿using SyncFoodApi.Controllers.DTO.Output;
+﻿using SyncFoodApi.Controllers.Users.DTO;
 using SyncFoodApi.Models;
 
 namespace SyncFoodApi.Controllers.Groups
