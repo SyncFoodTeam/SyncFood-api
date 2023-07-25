@@ -172,7 +172,7 @@ namespace SyncFoodApi.Controllers.Users
                 }
 
 
-                updateUser = emailValid || passwordValid || userNameUpdated;
+                updateUser = emailValid && passwordValid && userNameUpdated;
 
 
                 if (updateUser)
