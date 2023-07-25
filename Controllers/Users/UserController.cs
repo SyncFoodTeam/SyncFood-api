@@ -110,7 +110,7 @@ namespace SyncFoodApi.Controllers.Users
                 return NotFound("There is no user corresponding to this id");
         }
 
-        [HttpGet("info/usernameDiscriminator/{userNameDiscriminator}")]
+        [HttpGet("info/username/{userNameDiscriminator}")]
         public ActionResult<User> GetUserByNameDiscriminator(string userNameDiscriminator)
         {
             String[] splitted = userNameDiscriminator.Split('#');
