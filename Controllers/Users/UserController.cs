@@ -143,6 +143,11 @@ namespace SyncFoodApi.Controllers.Users
                 bool emailValid = false;
                 bool passwordValid = false;
                 bool userNameUpdated = false;
+
+                bool emailAsChanged = false;
+                bool passwordAsChanged = false;
+                bool userNameValid = false;
+
                 bool updateUser = false;
 
                 string newUserName = string.Empty;
@@ -150,29 +155,42 @@ namespace SyncFoodApi.Controllers.Users
 
                 if (request.UserName != null)
                 {
+
+                    userNameUpdated= true;
                     newUserName = request.UserName;
-                    newDiscriminator = discriminatorGenerator(_context, request.UserName);
-                    if (newDiscriminator != null)
+                    if (IsUserNameValide(newUserName))
                     {
-                        userNameUpdated = true;
+
+                        newDiscriminator = discriminatorGenerator(_context, request.UserName);
+                        if (newDiscriminator != null)
+                        {
+                            userNameValid = true;
+                        }
+
+                        else
+                            return Conflict();
                     }
 
                     else
-                        return Conflict();
+                        return BadRequest();
+
                 }
 
                 if (request.Email != null)
                 {
+                    emailAsChanged = true;
                     emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
                 }
 
                 if (request.Password != null)
                 {
+                    passwordAsChanged = true;
                     passwordValid = IsPasswordValid(request.Password);
                 }
 
-
-                updateUser = emailValid && passwordValid && userNameUpdated;
+                // Détermine si on doit mettre à jours l'utilisateur
+                // pour se faire le mail le mot de passe et le nom d'utlisateur doivent être valide si ils sont renseigné
+                updateUser = !( emailAsChanged && !emailValid || passwordAsChanged && !passwordValid || userNameUpdated && !userNameValid );
 
 
                 if (updateUser)
