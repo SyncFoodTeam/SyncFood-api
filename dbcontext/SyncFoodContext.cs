@@ -25,6 +25,6 @@ namespace SyncFoodApi.dbcontext
         public DbSet<ShoppingList> ShoppingLists { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-    => options.UseSqlite($"Data Source={DbPath}");
+            => options.UseSqlite($"Data Source={DbPath}");
     }
 }

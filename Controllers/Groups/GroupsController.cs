@@ -13,6 +13,7 @@ using SyncFoodApi.Controllers.Groups.DTO.Output;
 using SyncFoodApi.Controllers.DTO.Output;
 using static SyncFoodApi.Controllers.Users.UserUtils;
 using static SyncFoodApi.Controllers.Groups.GroupUtils;
+using NuGet.Protocol;
 
 namespace SyncFoodApi.Controllers.Groups
 {
@@ -34,6 +35,7 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupCreate(GroupCreateDTO request)
         {
             var user = getLogguedUser(User, _context);
+            Console.WriteLine(user);
             if (_context.Groups.Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user)){
                 return Conflict();
             }
@@ -138,6 +140,19 @@ namespace SyncFoodApi.Controllers.Groups
             else
                 return NotFound();
         }
+
+        [HttpGet("debug")]
+        public ActionResult<Group> Debug(int groupID, int userID)
+        {
+            var user = getLogguedUser(User, _context);
+            Group group = _context.Groups.First(x => x.Id == groupID);
+           // User userToAdd = _context.Users.FirstOrDefault(x => x.Id == userID);
+
+           //  Console.WriteLine(group.Owner.Id);
+
+            return Ok(group);
+ 
+    }
 
         [HttpPatch("members/add")]
         public ActionResult<GroupPrivateDTO> GroupMembersAdd(int groupID, int userID)

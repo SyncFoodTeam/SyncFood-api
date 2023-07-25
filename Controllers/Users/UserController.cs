@@ -194,6 +194,32 @@ namespace SyncFoodApi.Controllers.Users
             // manager
             if (user != null)
             {
+                List<Group> userGroup = _context.Groups.Where(x => x.Members.Contains(user)).ToList();
+
+                foreach (Group group in userGroup)
+                {
+                    // si il y'a plus d'un user on change le owner pour le prochain sur la liste
+                    // si non on supprime carrément le groupe
+                    if (group.Members.Count > 1)
+                    {
+                        group.Members.Remove(user);
+                        group.Owner = null;
+
+                        if (group.Owner.Id == user.Id)
+                        {
+                            group.Owner = group.Members[0];
+                        }
+                    }
+
+                    else
+                    {
+                        _context.Groups.Remove(group);
+                    }
+
+                    group.UpdatedDate = DateTime.Now;
+
+                    _context.SaveChanges();
+                }
 
                 _context.Users.Remove(user);
                 _context.SaveChanges();
