@@ -95,7 +95,7 @@ namespace SyncFoodApi.Controllers.Users
                 return Unauthorized();
         }
 
-        [HttpGet("info/{userID}")]
+        [HttpGet("info/id/{userID}")]
         public ActionResult<User> UserInfo(int userID)
         {
 
@@ -108,6 +108,29 @@ namespace SyncFoodApi.Controllers.Users
 
             else
                 return NotFound("There is no user corresponding to this id");
+        }
+
+        [HttpGet("info/usernameDiscriminator/{userNameDiscriminator}")]
+        public ActionResult<User> GetUserByNameDiscriminator(string userNameDiscriminator)
+        {
+            String[] splitted = userNameDiscriminator.Split('#');
+            if (splitted.Length == 2)
+            {
+                String userName = splitted[0];
+                String discriminator = splitted[1];
+                User user = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
+
+                if (user != null)
+                {
+                    return Ok((UserPublicDTO)user);
+                }
+
+                else
+                    return NotFound();
+            }
+
+            else
+                return BadRequest();
         }
 
         [HttpPatch("update/me")]

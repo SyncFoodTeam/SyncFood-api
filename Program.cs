@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Swashbuckle.AspNetCore.Filters;
+using static SyncFoodApi.Controllers.Users.UserUtils;
 
 namespace SyncFoodApi
 {
@@ -27,7 +28,7 @@ namespace SyncFoodApi
                 User defaultAdminAccount = new User
                 {
                     UserName = "Admin",
-                    Discriminator = "#0000",
+                    Discriminator = "0000",
                     Email = "admin@admin",
                     Role = Role.ADMIN,
                     Password = BCrypt.Net.BCrypt.HashPassword("adminadmin"),

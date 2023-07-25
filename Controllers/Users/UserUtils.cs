@@ -5,12 +5,20 @@ using SyncFoodApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using SyncFoodApi.dbcontext;
+using System.Text.RegularExpressions;
 
 namespace SyncFoodApi.Controllers.Users
 {
     public static class UserUtils
     {
         // Fonctions et Méthodes
+
+        public static bool IsUserNameValide(string userName)
+        {
+            Regex regex = new Regex("^[a-zA-Z0-9 ]*$");
+            return regex.IsMatch(userName);
+
+        }
 
 
         public static bool IsValidEmail(string email)
