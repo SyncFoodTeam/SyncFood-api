@@ -29,11 +29,22 @@ namespace SyncFoodApi.dbcontext
         {
             // Relations explicite entre les différents modèles
 
+            // Group <=> User
             modelBuilder.Entity<Group>().HasMany(group => group.Members).WithMany(user => user.Groups);
             modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.ownedGroup);
+
+            // Group <=> ShoppingList
+            modelBuilder.Entity<Group>().HasOne(group => group.ShoppingList).WithOne(shoppingList => shoppingList.Group).HasForeignKey<ShoppingList>(shoppingList => shoppingList.GroupId);
+
+            // ShoppingList <=> Product
+            modelBuilder.Entity<ShoppingList>().HasMany(shoppingList => shoppingList.Products).WithMany(product => product.ShoppingLists);
+
+            // FoodContainer <=> Group
             modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers);
-            modelBuilder.Entity<Product>().HasMany(product => product.FoodContainers).WithMany(foodcontainer => foodcontainer.Products);
-            modelBuilder.Entity<ShoppingList>().HasOne(shoppingList => shoppingList.FoodContainer).WithOne(foodContainer => foodContainer.ShoppingList);
+
+            // FoodContainer <=> Product
+            modelBuilder.Entity<FoodContainer>().HasMany(foodContainer => foodContainer.Products).WithMany(product => product.FoodContainers);
+            
         }
         #endregion
     }

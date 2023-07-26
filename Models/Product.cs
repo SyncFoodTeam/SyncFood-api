@@ -32,5 +32,6 @@
 
         // DB
         public List<FoodContainer> FoodContainers { get; set; }
+        public List<ShoppingList> ShoppingLists { get; set; }
     }
 }
