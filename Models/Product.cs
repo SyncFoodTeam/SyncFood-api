@@ -29,5 +29,8 @@
         public required DateTime ExpirationDate { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
+
+        // DB
+        public List<FoodContainer> FoodContainers { get; set; }
     }
 }

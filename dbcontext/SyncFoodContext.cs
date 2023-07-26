@@ -27,8 +27,13 @@ namespace SyncFoodApi.dbcontext
         #region Required
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Relations explicite entre les différents modèles
+
             modelBuilder.Entity<Group>().HasMany(group => group.Members).WithMany(user => user.Groups);
             modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.ownedGroup);
+            modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers);
+            modelBuilder.Entity<Product>().HasMany(product => product.FoodContainers).WithMany(foodcontainer => foodcontainer.Products);
+            modelBuilder.Entity<ShoppingList>().HasOne(shoppingList => shoppingList.FoodContainer).WithOne(foodContainer => foodContainer.ShoppingList);
         }
         #endregion
     }
