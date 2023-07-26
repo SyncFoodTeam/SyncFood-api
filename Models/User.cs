@@ -16,7 +16,7 @@
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
         // DB
-        public List<Group> ownedGroup { get; set; }
+        public List<Group> OwnedGroup { get; set; }
         public List<Group> Groups { get; set; } = new List<Group>();
     }
 }

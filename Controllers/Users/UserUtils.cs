@@ -120,7 +120,15 @@ namespace SyncFoodApi.Controllers.Users
         {
             int userID = int.Parse( User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             User user = _context.Users.FirstOrDefault(x => x.Id == userID);
-            return user;
+
+            if (user.Token != null && user.Token != string.Empty)
+            {
+
+                return user;
+            }
+
+            return null;
+
         }
     }
 }

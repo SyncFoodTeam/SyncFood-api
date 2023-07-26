@@ -31,7 +31,7 @@ namespace SyncFoodApi.dbcontext
 
             // Group <=> User
             modelBuilder.Entity<Group>().HasMany(group => group.Members).WithMany(user => user.Groups);
-            modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.ownedGroup);
+            modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.OwnedGroup);
 
             // Group <=> ShoppingList
             modelBuilder.Entity<Group>().HasOne(group => group.ShoppingList).WithOne(shoppingList => shoppingList.Group).HasForeignKey<ShoppingList>(shoppingList => shoppingList.GroupId);
