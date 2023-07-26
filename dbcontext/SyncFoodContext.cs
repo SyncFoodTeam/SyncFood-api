@@ -6,11 +6,8 @@ namespace SyncFoodApi.dbcontext
 {
     public class SyncFoodContext : DbContext
     {
-        /*public SyncFoodContext(DbContextOptions<SyncFoodContext> options) : base(options)
-        {
 
-            
-        }*/
+
 
         public string DbPath { get; }
         public SyncFoodContext() 
@@ -26,5 +23,13 @@ namespace SyncFoodApi.dbcontext
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite($"Data Source={DbPath}");
+       
+        #region Required
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Group>().HasMany(group => group.Members).WithMany(user => user.Groups);
+            modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.ownedGroup);
+        }
+        #endregion
     }
 }
