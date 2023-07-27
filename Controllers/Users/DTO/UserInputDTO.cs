@@ -11,10 +11,10 @@ namespace SyncFoodApi.Controllers.Users.DTO
 
         // Permet de caster un User en USerRegisterDTO
 
-        public static explicit operator UserRegisterDTO(User user)
+       /* public static explicit operator UserRegisterDTO(User user)
         {
             return new UserRegisterDTO { UserName = user.UserName, Email = user.Email, Password = user.Password };
-        }
+        }*/
     }
 
     public class UserLoginDTO
@@ -25,10 +25,10 @@ namespace SyncFoodApi.Controllers.Users.DTO
 
         // Permet de caster un User en USerLoginDTO
 
-        public static explicit operator UserLoginDTO(User user)
+        /*public static explicit operator UserLoginDTO(User user)
         {
             return new UserLoginDTO { Email = user.Email, Password = user.Password };
-        }
+        }*/
     }
 
     public class UserUpdateDTO
@@ -40,10 +40,10 @@ namespace SyncFoodApi.Controllers.Users.DTO
 
         // Permet de caster un User en USerUpdateDTO
 
-        public static explicit operator UserUpdateDTO(User user)
+        /*public static explicit operator UserUpdateDTO(User user)
         {
             return new UserUpdateDTO { UserName = user.UserName, Email = user.Email, Password = user.Password };
-        }
+        }*/
     }
 
 

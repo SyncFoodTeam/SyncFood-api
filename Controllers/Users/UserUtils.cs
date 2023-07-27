@@ -15,7 +15,7 @@ namespace SyncFoodApi.Controllers.Users
 
         public static bool IsUserNameValide(string userName)
         {
-            Regex regex = new Regex("^[a-zA-Z0-9 ]*$");
+            Regex regex = new Regex("^[a-zA-Z0-9]*$");
             return regex.IsMatch(userName);
 
         }
@@ -121,7 +121,7 @@ namespace SyncFoodApi.Controllers.Users
             int userID = int.Parse( User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             User user = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (user.Token != null && user.Token != string.Empty)
+            if (user != null && user.Token != null && user.Token != string.Empty)
             {
 
                 return user;

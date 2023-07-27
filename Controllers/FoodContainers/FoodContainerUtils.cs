@@ -6,7 +6,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
 {
     public static class FoodContainerUtils
     {
-        // Prend une liste de user et renvoi l'équivalent en UserPublicDTO
+        // Prend une liste de Product et renvoi l'équivalent en ProductPrivateDTO
         public static List<ProductPrivateDTO> GetProductsPrivate(List<Product> products)
         {
             List<ProductPrivateDTO> productsPrivateDTO = new List<ProductPrivateDTO>();

@@ -11,7 +11,6 @@ namespace SyncFoodApi.Controllers.Users.DTO
         public Role Role { get; set; } = Role.USER;
         public string Token { get; set; }
         public DateTime CreationDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
 
         // Permet de caster un User en USerPrivateDTO
 
@@ -25,8 +24,7 @@ namespace SyncFoodApi.Controllers.Users.DTO
                 Email = user.Email,
                 Token = user.Token,
                 Role = user.Role,
-                CreationDate = user.CreationDate,
-                UpdatedDate = user.UpdatedDate
+                CreationDate = user.CreationDate
             };
         }
     }

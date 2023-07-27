@@ -60,10 +60,10 @@ namespace SyncFoodApi.Controllers.Groups
         }
 
         [HttpPatch("edit")]
-        public ActionResult<Group> GroupEdit(GroupEditDTO request, int groupID)
+        public ActionResult<Group> GroupEdit(GroupEditDTO request)
         {
             var user = getLogguedUser(User, _context);
-            var group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
+            var group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
 
             if (group != null)
             {
@@ -116,7 +116,7 @@ namespace SyncFoodApi.Controllers.Groups
 
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("delete/{groupid}")]
         public ActionResult<GroupPrivateDTO> GroupDelete(int groupID)
         {
             var user = getLogguedUser(User, _context);

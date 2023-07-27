@@ -46,11 +46,11 @@ namespace SyncFoodApi.Controllers.Users
 
             // si l'email est déjà utilisé ou invalide ou encore si le mot de passe n'est pas valide on return
             if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
-                return BadRequest();
+                return BadRequest("Mail or password are invalid");
 
 
             if (registeredUser.Discriminator == string.Empty)
-                return Conflict("all discriminators are already taken for this username");
+                return Conflict("This username is unavailable");
 
 
             _context.Users.Add(registeredUser);
@@ -80,12 +80,12 @@ namespace SyncFoodApi.Controllers.Users
                 }
 
                 else
-                    return BadRequest();
+                    return Unauthorized("Incorrect mail or password");
 
             }
 
             else
-                return Unauthorized();
+                return Unauthorized("Incorrect mail or password");
         }
 
         [HttpGet("info/me")]
@@ -133,7 +133,7 @@ namespace SyncFoodApi.Controllers.Users
             }
 
             else
-                return BadRequest();
+                return BadRequest("Invalid username");
         }
 
         [HttpPatch("update/me")]
@@ -171,11 +171,11 @@ namespace SyncFoodApi.Controllers.Users
                         }
 
                         else
-                            return Conflict();
+                            return Conflict("Username unavailable");
                     }
 
                     else
-                        return BadRequest();
+                        return BadRequest("Invalid username");
 
                 }
 
