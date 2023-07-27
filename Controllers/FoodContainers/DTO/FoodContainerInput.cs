@@ -13,6 +13,7 @@ namespace SyncFoodApi.Controllers.FoodContainers.DTO
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public required int FoodContainerID { get; set;}
     }
 
 }

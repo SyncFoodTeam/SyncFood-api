@@ -9,6 +9,8 @@ using SyncFoodApi.Models;
 using SyncFoodApi.dbcontext;
 using Microsoft.AspNetCore.Authorization;
 using SyncFoodApi.Controllers.FoodContainers.DTO;
+using static SyncFoodApi.Controllers.Users.UserUtils;
+using static SyncFoodApi.Controllers.SyncFoodUtils;
 
 namespace SyncFoodApi.Controllers.FoodContainers
 {
@@ -27,32 +29,44 @@ namespace SyncFoodApi.Controllers.FoodContainers
         [HttpPost("create")]
         public ActionResult<FoodContainer> CreateFoodContainer(FoodContainerCreateDTO request)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
 
             Group group = _context.Groups.FirstOrDefault(x => x.Id == request.GroupId);
-            if (group != null)
-            {
 
-                FoodContainer foodContainer = new FoodContainer()
-                {
-                    Name = request.Name,
-                    Description = request.Description,
-                    group = group
-                };
-
-                _context.FoodContainers.Add(foodContainer);
-                _context.SaveChanges();
-
-                return Ok((PrivateFoodContainerDTO)foodContainer);
-            }
-
-            else
+            if (group == null)
                 return NotFound();
+
+            if (!AllowedName(request.Name))
+                return BadRequest();
+
+            if (_context.FoodContainers.Include(x => x.group).Any(x => x.group == group && x.Name.ToLower() == request.Name.ToLower()))
+                return Conflict();
+
+            FoodContainer newFoodContainer = new FoodContainer()
+            {
+                Name = request.Name,
+                Description = request.Description,
+                group = group
+            };
+
+            _context.FoodContainers.Add(newFoodContainer);
+            _context.SaveChanges();
+
+            return Ok((PrivateFoodContainerDTO)newFoodContainer);
         }
 
-        [HttpPatch("edit")]
-        public ActionResult<FoodContainer> EditFoodContainer(FoodContainerEditDTO request, int foodContainerID)
+        [HttpPatch("edit/{FoodContainerID}")]
+        public ActionResult<FoodContainer> EditFoodContainer(FoodContainerEditDTO request)
         {
-            FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+            FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == request.FoodContainerID);
 
             if (foodContainer != null)
             {
@@ -85,6 +99,11 @@ namespace SyncFoodApi.Controllers.FoodContainers
         [HttpDelete("delete")]
         public ActionResult<FoodContainer> DeleteFoodContainer(int foodContainerID)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
 
             if (foodContainer != null)
@@ -102,6 +121,11 @@ namespace SyncFoodApi.Controllers.FoodContainers
         [HttpPost("product/add")]
         public ActionResult<FoodContainer> FoodContainerAddProduct(int foodContainerID, int productID)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
             Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
 
@@ -119,6 +143,11 @@ namespace SyncFoodApi.Controllers.FoodContainers
         [HttpPost("product/remove")]
         public ActionResult<FoodContainer> FoodContainerRemoveProduct(int foodContainerID, int productID)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
             Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
 

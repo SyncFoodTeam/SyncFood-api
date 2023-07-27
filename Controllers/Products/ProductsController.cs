@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SyncFoodApi.Models;
 using SyncFoodApi.dbcontext;
+using static SyncFoodApi.Controllers.Users.UserUtils;
 using static SyncFoodApi.Controllers.Products.ProductUtils;
 using SyncFoodApi.Controllers.Products.DTO;
 
@@ -28,6 +29,11 @@ namespace SyncFoodApi.Controllers.Products
         [HttpGet("findsyncfood")]
         public ActionResult<List<Product>> findProductOnSyncFood(string productName)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             List<Product> products = _context.Products.Where(x => x.Name.ToLower() == productName.ToLower()).ToList();
 
             if (products.Count > 0)
@@ -43,6 +49,11 @@ namespace SyncFoodApi.Controllers.Products
         [HttpGet("findopenfood")]
         public ActionResult<List<ProductPublicDTO>> findProductOnOpenFood(string productName)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             List<ProductPublicDTO> products = new List<ProductPublicDTO>();
             // TODO interroger l'api openFood
             return products;
