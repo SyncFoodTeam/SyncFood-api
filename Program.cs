@@ -75,6 +75,10 @@ namespace SyncFoodApi
                     };
                 });
 
+            // Journalisation
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
 
             var app = builder.Build();
 

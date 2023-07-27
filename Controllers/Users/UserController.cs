@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using static SyncFoodApi.Controllers.Users.UserUtils;
 using SyncFoodApi.Controllers.Users.DTO;
+using NuGet.Protocol;
 
 namespace SyncFoodApi.Controllers.Users
 {
@@ -15,12 +16,16 @@ namespace SyncFoodApi.Controllers.Users
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
-        public UserController(SyncFoodContext context, IConfiguration configuration)
+        private readonly ILogger _logger;
+        public UserController(SyncFoodContext context, IConfiguration configuration, ILogger<UserController> logguer) 
         {
             // context de base de donnée
             _context = context;
             // config de l'appSettings.json
             _configuration = configuration;
+
+            // Logger
+            _logger = logguer;
         }
 
 
@@ -56,7 +61,9 @@ namespace SyncFoodApi.Controllers.Users
             _context.Users.Add(registeredUser);
             _context.SaveChanges();
 
-            return Ok((UserPrivateDTO)registeredUser);
+            UserPrivateDTO userPrivate = (UserPrivateDTO)registeredUser;
+            // _logger.LogDebug($"New user registered : {userPrivate.ToJson()}");
+            return Ok(userPrivate);
         }
 
         [HttpPost("login"), AllowAnonymous]
@@ -75,7 +82,11 @@ namespace SyncFoodApi.Controllers.Users
                         _context.Users.Update(user);
                         _context.SaveChanges();
                     }
-                    return Ok((UserPrivateDTO)user);
+
+
+                    UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+                   //  _logger.LogDebug($"User login : {userPrivate.ToJson()}");
+                    return Ok(userPrivate);
 
                 }
 

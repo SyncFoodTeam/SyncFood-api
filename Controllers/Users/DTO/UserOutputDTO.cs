@@ -27,6 +27,11 @@ namespace SyncFoodApi.Controllers.Users.DTO
                 CreationDate = user.CreationDate
             };
         }
+
+        /*public override string ToString()
+        {
+            return $"ID : {this.Id}   UsernName : {this.UserName}   Discriminator : {this.Discriminator}   Email : {}"
+        }*/
     }
 
     public class UserPublicDTO
