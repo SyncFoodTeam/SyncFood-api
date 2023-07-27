@@ -97,11 +97,12 @@ namespace SyncFoodApi.Controllers.Users
 
                 }
 
+                // mauvais mdp
                 else
                     return Unauthorized("Incorrect mail or password");
 
             }
-
+            // mail qui existe pas
             else
                 return Unauthorized("Incorrect mail or password");
         }
