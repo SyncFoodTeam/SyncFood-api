@@ -13,12 +13,12 @@ namespace SyncFoodApi.Controllers.Users
     {
         // Fonctions et Méthodes
 
-        public static bool IsUserNameValide(string userName)
+        /*public static bool IsUserNameValide(string userName)
         {
             Regex regex = new Regex("^[a-zA-Z0-9]*$");
             return regex.IsMatch(userName);
 
-        }
+        }*/
 
 
         public static bool IsValidEmail(string email)
