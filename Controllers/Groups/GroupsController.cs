@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using SyncFoodApi.Controllers.Groups.DTO;
 using SyncFoodApi.Controllers.Users.DTO;
 using static SyncFoodApi.Controllers.Users.UserUtils;
+using static SyncFoodApi.Controllers.SyncFoodUtils;
 using static SyncFoodApi.Controllers.Groups.GroupUtils;
 using NuGet.Protocol;
 
@@ -44,8 +45,11 @@ namespace SyncFoodApi.Controllers.Groups
             {
                 return Conflict();
             }
-            //if (user != null)
-            //{
+
+            if (!SyncFoodUtils.AllowedName(request.Name))
+            {
+                return BadRequest();
+            }
 
             Group group = new Group
             {
@@ -60,10 +64,7 @@ namespace SyncFoodApi.Controllers.Groups
             _context.Groups.Add(group);
             _context.SaveChanges();
             return Ok((GroupPrivateDTO)group);
-            //}
 
-            //else
-            //return Unauthorized();
         }
 
         [HttpPatch("edit")]
@@ -114,7 +115,6 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (user != null)
             {
-
 
                 List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
                 var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
