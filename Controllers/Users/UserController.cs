@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using static SyncFoodApi.Controllers.Users.UserUtils;
 using SyncFoodApi.Controllers.Users.DTO;
 using NuGet.Protocol;
+using Microsoft.Extensions.Localization;
 
 namespace SyncFoodApi.Controllers.Users
 {
@@ -17,15 +18,21 @@ namespace SyncFoodApi.Controllers.Users
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
-        public UserController(SyncFoodContext context, IConfiguration configuration, ILogger<UserController> logguer) 
+        private readonly IStringLocalizer _Localizer;
+        public UserController(SyncFoodContext context, IConfiguration configuration, ILogger logguer, IStringLocalizer localizer) 
         {
             // context de base de donnée
             _context = context;
+
             // config de l'appSettings.json
             _configuration = configuration;
 
             // Logger
             _logger = logguer;
+
+            // Traduction
+            _Localizer = localizer;
+
         }
 
 

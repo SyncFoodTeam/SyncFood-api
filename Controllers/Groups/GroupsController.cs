@@ -99,13 +99,13 @@ namespace SyncFoodApi.Controllers.Groups
         {
             var user = getLogguedUser(User, _context);
 
-            List<GroupPrivateDTO> publicGroups = new List<GroupPrivateDTO>();
+            List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
             var groups = _context.Groups.Include(group => group.Owner).Include(x => x.Members).Where(x => x.Members.Contains(user)).ToList();
 
 
                 foreach (Group group in groups)
                 {
-                    publicGroups.Add((GroupPrivateDTO)group);
+                    publicGroups.Add((GroupPrivateLitedDTO)group);
                 }
                 return Ok(publicGroups);
 

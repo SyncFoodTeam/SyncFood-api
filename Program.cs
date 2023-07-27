@@ -79,6 +79,9 @@ namespace SyncFoodApi
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
+            // Localisation (Langue)
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 
             var app = builder.Build();
 
