@@ -102,7 +102,7 @@ namespace SyncFoodApi.Controllers.Groups
             // TODO secure
 
             List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
-            var groups = _context.Groups.Include(group => group.Owner).Include(x => x.Members).Where(x => x.Members.Contains(user)).ToList();
+            var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
 
             foreach (Group group in groups)
             {
@@ -120,11 +120,16 @@ namespace SyncFoodApi.Controllers.Groups
             var user = getLogguedUser(User, _context);
             // TODO secure
 
-            var group = _context.Groups.Where(x => x.Id == groupID);
+            var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
 
             if (group != null)
             {
-                return Ok((GroupPrivateDTO)group);
+                if (group.Members.Contains(user))
+                {
+                    return Ok((GroupPrivateDTO)group);
+                }
+
+                return Forbid();
             }
 
             else
