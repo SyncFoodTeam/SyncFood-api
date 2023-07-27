@@ -99,6 +99,8 @@ namespace SyncFoodApi.Controllers.Groups
         {
             var user = getLogguedUser(User, _context);
 
+            // TODO secure
+
             List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
             var groups = _context.Groups.Include(group => group.Owner).Include(x => x.Members).Where(x => x.Members.Contains(user)).ToList();
 
@@ -109,6 +111,24 @@ namespace SyncFoodApi.Controllers.Groups
 
             return Ok(publicGroups);
 
+
+        }
+
+        [HttpGet("get")]
+        public ActionResult<Group> getGroup(int groupID) 
+        {
+            var user = getLogguedUser(User, _context);
+            // TODO secure
+
+            var group = _context.Groups.Where(x => x.Id == groupID);
+
+            if (group != null)
+            {
+                return Ok((GroupPrivateDTO)group);
+            }
+
+            else
+                return NotFound();
 
         }
 
