@@ -17,9 +17,9 @@ namespace SyncFoodApi.Controllers.Users
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
-        private readonly ILogger _logger;
-        private readonly IStringLocalizer _Localizer;
-        public UserController(SyncFoodContext context, IConfiguration configuration, ILogger logguer, IStringLocalizer localizer) 
+/*        private readonly ILogger _logger;
+        private readonly IStringLocalizer _Localizer;*/
+        public UserController(SyncFoodContext context, IConfiguration configuration) 
         {
             // context de base de donnée
             _context = context;
@@ -28,10 +28,10 @@ namespace SyncFoodApi.Controllers.Users
             _configuration = configuration;
 
             // Logger
-            _logger = logguer;
+            // _logger = logguer;
 
             // Traduction
-            _Localizer = localizer;
+           //  _Localizer = localizer;
 
         }
 
