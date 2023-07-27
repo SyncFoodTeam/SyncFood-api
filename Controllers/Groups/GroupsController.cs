@@ -99,41 +99,53 @@ namespace SyncFoodApi.Controllers.Groups
         {
             var user = getLogguedUser(User, _context);
 
-            // TODO secure
-
-            List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
-            var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
-
-            foreach (Group group in groups)
+            if (user != null)
             {
-                publicGroups.Add((GroupPrivateLitedDTO)group);
-            }
-
-            return Ok(publicGroups);
 
 
-        }
+                List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
+                var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
 
-        [HttpGet("get")]
-        public ActionResult<Group> getGroup(int groupID) 
-        {
-            var user = getLogguedUser(User, _context);
-            // TODO secure
-
-            var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
-
-            if (group != null)
-            {
-                if (group.Members.Contains(user))
+                foreach (Group group in groups)
                 {
-                    return Ok((GroupPrivateDTO)group);
+                    publicGroups.Add((GroupPrivateLitedDTO)group);
                 }
 
-                return Forbid();
+                return Ok(publicGroups);
+
             }
 
             else
-                return NotFound();
+                return Unauthorized();
+
+        }
+
+        [HttpGet("get/{groupID}")]
+        public ActionResult<Group> getGroup(int groupID)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user != null)
+            {
+
+
+                var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
+
+                if (group != null)
+                {
+                    if (group.Members.Contains(user))
+                    {
+                        return Ok((GroupPrivateDTO)group);
+                    }
+
+                    return Forbid();
+                }
+
+                else
+                    return NotFound();
+            }
+
+            return Unauthorized();
 
         }
 
