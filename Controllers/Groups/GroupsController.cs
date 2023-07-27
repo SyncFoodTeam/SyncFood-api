@@ -37,19 +37,14 @@ namespace SyncFoodApi.Controllers.Groups
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-            {
                 return Unauthorized();
-            }
 
+            // on vérifie que l'utilisateur n'a pas déjà un groupe du même nom
             if (_context.Groups.Include(group => group.Owner).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user))
-            {
                 return Conflict();
-            }
 
-            if (!SyncFoodUtils.AllowedName(request.Name))
-            {
+            if (!AllowedName(request.Name))
                 return BadRequest();
-            }
 
             Group group = new Group
             {
@@ -63,7 +58,9 @@ namespace SyncFoodApi.Controllers.Groups
 
             _context.Groups.Add(group);
             _context.SaveChanges();
-            return Ok((GroupPrivateDTO)group);
+
+            GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
+            return Ok(groupPrivateLite);
 
         }
 
@@ -77,34 +74,29 @@ namespace SyncFoodApi.Controllers.Groups
                 return Unauthorized();
             }
 
-            var group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
+            Group group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
 
-            if (group != null)
-            {
-                if (group.Owner.Id == user.Id)
-                {
-                    if (request.Name != string.Empty && request.Name != null)
-                        group.Name = request.Name;
-
-                    if (request.Description != string.Empty && request.Description != null)
-                        group.Description = request.Description;
-
-                    if (request.Budget != 0f)
-                        group.Budget = request.Budget;
-
-                    group.UpdatedDate = DateTime.Now;
-                    _context.Groups.Update(group);
-                    _context.SaveChanges();
-
-                    return Ok((GroupPrivateDTO)group);
-
-                }
-                else
-                    return Unauthorized();
-            }
-
-            else
+            if (group == null)
                 return NotFound();
+
+            if (group.Owner != user)
+                return Forbid();
+
+            if (request.Name != string.Empty && request.Name != null)
+                group.Name = request.Name;
+
+            if (request.Description != string.Empty && request.Description != null)
+                group.Description = request.Description;
+
+            if (request.Budget != 0f)
+                group.Budget = request.Budget;
+
+            group.UpdatedDate = DateTime.Now;
+            _context.Groups.Update(group);
+            _context.SaveChanges();
+
+            GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
+            return Ok(groupPrivateLite);
 
         }
 
@@ -113,23 +105,12 @@ namespace SyncFoodApi.Controllers.Groups
         {
             var user = getLogguedUser(User, _context);
 
-            if (user != null)
-            {
-
-                List<GroupPrivateLitedDTO> publicGroups = new List<GroupPrivateLitedDTO>();
-                var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
-
-                foreach (Group group in groups)
-                {
-                    publicGroups.Add((GroupPrivateLitedDTO)group);
-                }
-
-                return Ok(publicGroups);
-
-            }
-
-            else
+            if (user == null)
                 return Unauthorized();
+
+            var groups = _context.Groups.Include(group => group.Owner).Where(x => x.Members.Contains(user)).ToList();
+          
+            return Ok(GetGroupsPrivateliteDTO(groups));
 
         }
 
@@ -138,144 +119,132 @@ namespace SyncFoodApi.Controllers.Groups
         {
             var user = getLogguedUser(User, _context);
 
-            if (user != null)
-            {
-                var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
+            if (user == null)
+                return Unauthorized();
 
-                if (group != null)
-                {
-                    if (group.Members.Contains(user))
-                    {
-                        return Ok((GroupPrivateDTO)group);
-                    }
+            var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
 
-                    return Forbid();
-                }
+            if (group == null)
+                return NotFound();
 
-                else
-                    return NotFound();
-            }
+            if (!group.Members.Contains(user))
+                return Forbid();
 
-            return Unauthorized();
+            GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
+            return Ok(groupPrivate);
 
         }
 
-        [HttpDelete("delete/{groupid}")]
+        [HttpDelete("delete/{groupID}")]
         public ActionResult<GroupPrivateDTO> GroupDelete(int groupID)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
 
-            if (group != null)
-            {
-                if (group.Owner.Id == user.Id)
-                {
-                    _context.Groups.Remove(group);
-                    _context.SaveChanges();
-                    return Ok((GroupPrivateDTO)group);
-                }
-
-                else
-                    return Forbid();
-            }
-
-            else
+            if (group == null)
                 return NotFound();
+
+            if (group.Owner != user)
+                return Forbid();
+
+            _context.Groups.Remove(group);
+            GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
+            return Ok(groupPrivateLite);
+
         }
 
 
-        [HttpPatch("members/add")]
+        [HttpPatch("members/add/{groupID}/{userID}")]
         public ActionResult<GroupPrivateDTO> GroupMembersAdd(int groupID, int userID)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User userToAdd = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (group != null && userToAdd != null)
+            if (group == null || userToAdd == null)
+                return NotFound();
+
+            if (group.Owner != user)
+                return Forbid();
+
+
+            if (!group.Members.Contains(userToAdd))
             {
-                if (group.Owner == user)
-                {
-                    if (!group.Members.Contains(userToAdd))
-                    {
-                        group.Members.Add(userToAdd);
-                        _context.SaveChanges();
-                        return Ok((GroupPrivateDTO)group);
-                    }
-
-                    else
-                        return BadRequest();
-                }
-
-                else
-                    return Forbid();
+                group.Members.Add(userToAdd);
+                _context.Groups.Update(group);
+                _context.SaveChanges();
             }
 
-            else
-                return NotFound();
+            GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
+            return Ok(groupPrivate);
+
+
+
         }
 
-        [HttpPatch("members/remove")]
+        [HttpPatch("members/remove/{groupID}/{userID}")]
         public ActionResult<GroupPrivateDTO> GroupMembersRemove(int groupID, int userID)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User userToRemove = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (group != null && userToRemove != null)
+            if (group == null || userToRemove == null)
+                return NotFound();
+
+            if (group.Owner != user)
+                return Forbid();
+
+
+            if (group.Members.Contains(userToRemove))
             {
-                if (group.Owner.Id == user.Id)
-                {
-                    if (group.Members.Contains(userToRemove) && userID != group.Owner.Id)
-                    {
-
-                        group.Members.Remove(userToRemove);
-                        _context.SaveChanges();
-                        return Ok((GroupPrivateDTO)group);
-                    }
-
-                    else
-                        return BadRequest();
-                }
-
-                else
-                    return Forbid();
+                group.Members.Remove(userToRemove);
+                _context.Groups.Update(group);
+                _context.SaveChanges();
             }
 
-            else
-                return NotFound();
+            GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
+            return Ok(groupPrivate);
         }
 
-        [HttpPatch("changeOwner")]
+        [HttpPatch("changeOwner/{groupID}/{userID}")]
         public ActionResult<UserPublicDTO> GroupChangeOwner(int groupID, int userID)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User newOwner = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (user != null && newOwner != null && group != null)
-            {
-                if (user.Id == group.Owner.Id)
-                {
-                    if (group.Members.Contains(newOwner))
-                    {
-
-                        group.Owner = newOwner;
-                        _context.Groups.Update(group);
-                        _context.SaveChanges();
-                        return Ok((GroupPrivateDTO)group);
-                    }
-
-                    else
-                        return BadRequest();
-
-                }
-
-                else
-                    return Forbid();
-            }
-
-            else
+            if (newOwner == null || group == null)
                 return NotFound();
+
+            if (user != group.Owner)
+                return Forbid();
+
+            if (!group.Members.Contains(newOwner))
+                return BadRequest();
+
+            group.Owner = newOwner;
+            _context.Groups.Update(group);
+            _context.SaveChanges();
+
+            GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
+            return Ok(groupPrivate);
 
         }
 

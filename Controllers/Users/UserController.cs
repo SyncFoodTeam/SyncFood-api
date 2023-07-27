@@ -139,18 +139,24 @@ namespace SyncFoodApi.Controllers.Users
         [HttpGet("info/username/{userNameDiscriminator}")]
         public ActionResult<User> GetUserByNameDiscriminator(string userNameDiscriminator)
         {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
             String[] splitted = userNameDiscriminator.Split('#');
             if (splitted.Length != 2)
                 return BadRequest("Invalid username");
 
             String userName = splitted[0];
             String discriminator = splitted[1];
-            User user = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
+            User requestedUser = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
 
-            if (user == null)
+            if (requestedUser == null)
                 return NotFound();
 
-            return Ok((UserPublicDTO)user);
+            UserPublicDTO userPublic = (UserPublicDTO)requestedUser;
+            return Ok(userPublic);
 
         }
 
@@ -209,7 +215,7 @@ namespace SyncFoodApi.Controllers.Users
                 {
                     user.Password = user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
                     // Par mesure de sécurité on génère un nouveau token quand l'utilisateur change son mot de passe
-                    user.Token = UserUtils.generateToken(_configuration,user);
+                    user.Token = UserUtils.generateToken(_configuration, user);
 
                 }
 
@@ -217,7 +223,7 @@ namespace SyncFoodApi.Controllers.Users
             }
 
             // Détermine si on doit mettre à jours l'utilisateur
-            // pour se faire le mail le mot de passe et le nom d'utlisateur doivent être valide si ils sont renseigné
+            // pour se faire le mail le mot de passe et le nom d'utilisateur doivent être valide si ils sont renseigné
             updateUser = !(emailAsChanged && !emailValid || passwordAsChanged && !passwordValid || userNameUpdated && !userNameValid);
 
 
@@ -229,12 +235,13 @@ namespace SyncFoodApi.Controllers.Users
                 _context.Users.Update(user);
                 _context.SaveChanges();
 
-                return Ok((UserPrivateDTO)user);
 
             }
 
-            else
-                return BadRequest();
+            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+            return Ok(userPrivate);
+            /*            else
+                            return BadRequest();*/
 
         }
 

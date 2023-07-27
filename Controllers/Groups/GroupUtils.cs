@@ -1,4 +1,5 @@
-﻿using SyncFoodApi.Controllers.Users.DTO;
+﻿using SyncFoodApi.Controllers.Groups.DTO;
+using SyncFoodApi.Controllers.Users.DTO;
 using SyncFoodApi.Models;
 
 namespace SyncFoodApi.Controllers.Groups
@@ -15,6 +16,18 @@ namespace SyncFoodApi.Controllers.Groups
             }
 
             return userPublicDTOs;
+        }
+
+        // Prend une liste de group et renvoi l'équivalent en GroupPrivateLiteDTO
+        public static List<GroupPrivateLitedDTO> GetGroupsPrivateliteDTO(List<Group> groups)
+        {
+            List<GroupPrivateLitedDTO> groupsPrivateliteDTO = new List<GroupPrivateLitedDTO>();
+            foreach (Group group in groups)
+            {
+                groupsPrivateliteDTO.Add((GroupPrivateLitedDTO)group);
+            }
+
+            return groupsPrivateliteDTO;
         }
     }
 }
