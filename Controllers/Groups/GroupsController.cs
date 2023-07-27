@@ -34,12 +34,19 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupCreate(GroupCreateDTO request)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             if (_context.Groups.Include(group => group.Owner).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user))
             {
                 return Conflict();
             }
             //if (user != null)
             //{
+
             Group group = new Group
             {
                 Name = request.Name,
@@ -63,6 +70,12 @@ namespace SyncFoodApi.Controllers.Groups
         public ActionResult<Group> GroupEdit(GroupEditDTO request)
         {
             var user = getLogguedUser(User, _context);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             var group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
 
             if (group != null)
@@ -127,8 +140,6 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (user != null)
             {
-
-
                 var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
 
                 if (group != null)
