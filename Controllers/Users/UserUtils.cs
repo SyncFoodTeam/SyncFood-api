@@ -48,9 +48,7 @@ namespace SyncFoodApi.Controllers.Users
         public static bool IsPasswordValid(string password)
         {
             if (password.Length < 6)
-            {
                 return false;
-            }
 
             bool containLower = false;
             bool containUpper = false;
@@ -59,6 +57,8 @@ namespace SyncFoodApi.Controllers.Users
             {
                 if (char.IsLower(c)) containLower = true;
                 if (char.IsUpper(c)) containUpper = true;
+                if (containLower && containUpper) break;
+
             }
 
             return (containLower && containUpper);
