@@ -136,20 +136,22 @@ namespace SyncFoodApi.Controllers.Users
 
         }
 
-        [HttpGet("info/username/{userNameDiscriminator}")]
-        public ActionResult<User> GetUserByNameDiscriminator(string userNameDiscriminator)
+        [HttpGet("info/username/{username}/{discriminator}")]
+        public ActionResult<User> GetUserByNameDiscriminator(string userName, string discriminator)
         {
             var user = getLogguedUser(User, _context);
 
             if (user == null)
                 return Unauthorized();
 
-            String[] splitted = userNameDiscriminator.Split('#');
+/*            String[] splitted = userNameDiscriminator.Split('#');
             if (splitted.Length != 2)
                 return BadRequest("Invalid username");
 
             String userName = splitted[0];
-            String discriminator = splitted[1];
+            String discriminator = splitted[1];*/
+            
+
             User requestedUser = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
 
             if (requestedUser == null)
