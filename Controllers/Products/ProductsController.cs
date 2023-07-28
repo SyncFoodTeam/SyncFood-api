@@ -25,7 +25,7 @@ namespace SyncFoodApi.Controllers.Products
         /*
                 [HttpPost("create")]
                 public ActionResult<Product> createProduct()*/
-
+/*
         [HttpGet("findsyncfood")]
         public ActionResult<List<Product>> findProductOnSyncFood(string productName)
         {
@@ -59,7 +59,7 @@ namespace SyncFoodApi.Controllers.Products
             return products;
         }
 
- /*       [HttpPost("create")]
+ *//*       [HttpPost("create")]
         public ActionResult<Product> createProduct(ProductCreateDTO request){
         {
 

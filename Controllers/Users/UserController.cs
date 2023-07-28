@@ -19,9 +19,9 @@ namespace SyncFoodApi.Controllers.Users
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
-        /*        private readonly ILogger _logger;
-                private readonly IStringLocalizer _Localizer;*/
-        public UserController(SyncFoodContext context, IConfiguration configuration)
+        // private readonly ILogger _logger;
+        private readonly IStringLocalizer<UserController> _Localizer;
+        public UserController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<UserController> localizer)
         {
             // context de base de donnée
             _context = context;
@@ -33,8 +33,8 @@ namespace SyncFoodApi.Controllers.Users
             // _logger = logguer;
 
             // Traduction
-            //  _Localizer = localizer;
-
+            _Localizer = localizer;
+            _Localizer = localizer;
         }
 
 
@@ -60,11 +60,11 @@ namespace SyncFoodApi.Controllers.Users
 
             // si l'email est déjà utilisé ou invalide ou encore si le mot de passe n'est pas valide on return
             if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
-                return BadRequest("Mail or password are invalid");
+                return BadRequest(_Localizer["register.invalid.format"]);
 
 
             if (registeredUser.Discriminator == string.Empty)
-                return Conflict("This username is unavailable");
+                return Conflict(_Localizer["register.unavailable.username"]);
 
 
             _context.Users.Add(registeredUser);
@@ -84,12 +84,12 @@ namespace SyncFoodApi.Controllers.Users
 
             // mail qui existe pas
             if (user == null)
-                return Unauthorized("Incorrect mail or password");
+                return Unauthorized(_Localizer["login.incorrect"]);
 
 
             // mauvais mdp
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                return Unauthorized("Incorrect mail or password");
+                return Unauthorized("login.incorrect");
 
 
             if (user.Token == null)
@@ -129,7 +129,7 @@ namespace SyncFoodApi.Controllers.Users
             User requestedUser = _context.Users.FirstOrDefault(x => x.Id == userID);
 
             if (requestedUser == null)
-                return NotFound();
+                return NotFound(_Localizer["user.notfound"]);
 
             UserPublicDTO userPublic = (UserPublicDTO)user;
             return Ok(userPublic);

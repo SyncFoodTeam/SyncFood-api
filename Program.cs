@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Swashbuckle.AspNetCore.Filters;
 using static SyncFoodApi.Controllers.Users.UserUtils;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace SyncFoodApi
 {
@@ -80,10 +82,23 @@ namespace SyncFoodApi
             builder.Logging.AddConsole();*/
 
             // Localisation (Langue)
-           //  builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("fr-FR")
+                };
+
+                options.DefaultRequestCulture = new RequestCulture("en-US");
+                options.SupportedCultures = supportedCultures;
+            });
 
 
             var app = builder.Build();
+
+            app.UseRequestLocalization();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

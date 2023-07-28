@@ -66,34 +66,33 @@ namespace SyncFoodApi.Controllers.FoodContainers
             if (user == null)
                 return Unauthorized();
 
+            if (!AllowedName(request.Name))
+                return BadRequest();
+
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == request.FoodContainerID);
 
-            if (foodContainer != null)
-            {
-
-
-                bool updateFoodContainer = !(request.Name == string.Empty && request.Description == string.Empty);
-
-                if (updateFoodContainer)
-                {
-                    if (request.Name != string.Empty && request.Name != null)
-                        foodContainer.Name = request.Name;
-
-                    if (request.Description != string.Empty && request.Description != null)
-                        foodContainer.Description = request.Description;
-
-                    _context.FoodContainers.Update(foodContainer);
-                    _context.SaveChanges();
-
-                    return Ok((PrivateFoodContainerDTO)foodContainer);
-                }
-
-                else
-                    return BadRequest();
-            }
-
-            else
+            if (foodContainer == null)
                 return NotFound();
+
+            if (_context.FoodContainers.Include(x => x.group).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.group == foodContainer.group))
+                return Conflict();
+
+
+            bool updateFoodContainer = !(request.Name == string.Empty && request.Description == string.Empty);
+
+            if (request.Name != string.Empty && request.Name != null)
+                foodContainer.Name = request.Name;
+
+            if (request.Description != string.Empty && request.Description != null)
+                foodContainer.Description = request.Description;
+
+            if (updateFoodContainer)
+            {
+                _context.FoodContainers.Update(foodContainer);
+                _context.SaveChanges();
+
+            }
+            return Ok((PrivateFoodContainerDTO)foodContainer);
         }
 
         [HttpDelete("delete")]
@@ -106,19 +105,17 @@ namespace SyncFoodApi.Controllers.FoodContainers
 
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
 
-            if (foodContainer != null)
-            {
-                _context.FoodContainers.Remove(foodContainer);
-                _context.SaveChanges();
-
-                return Ok((PrivateFoodContainerDTO)foodContainer);
-            }
-
-            else
+            if (foodContainer == null)
                 return NotFound();
+
+            _context.FoodContainers.Remove(foodContainer);
+            _context.SaveChanges();
+
+            return Ok((PrivateFoodContainerDTO)foodContainer);
+
         }
 
-        [HttpPost("product/add")]
+   /*     [HttpPost("product/add")]
         public ActionResult<FoodContainer> FoodContainerAddProduct(int foodContainerID, int productID)
         {
             var user = getLogguedUser(User, _context);
@@ -129,15 +126,14 @@ namespace SyncFoodApi.Controllers.FoodContainers
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
             Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
 
-            if (product != null && foodContainer != null)
-            {
-                foodContainer.Products.Add(product);
-                _context.FoodContainers.Update(foodContainer);
+            if (product == null || foodContainer == null)
+                return NotFound(productID);
 
-                return Ok((PrivateFoodContainerDTO)foodContainer);
-            }
+            foodContainer.Products.Add(product);
+            _context.FoodContainers.Update(foodContainer);
 
-            return NotFound();
+            return Ok((PrivateFoodContainerDTO)foodContainer);
+
         }
 
         [HttpPost("product/remove")]
@@ -151,9 +147,10 @@ namespace SyncFoodApi.Controllers.FoodContainers
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
             Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
 
-            if (product != null && foodContainer != null)
-            {
-                if (foodContainer.Products.Contains(product))
+            if (product == null || foodContainer == null)
+                return NotFound();
+
+            if (foodContainer.Products.Contains(product))
                 {
                     foreach(Product currentProduct in foodContainer.Products)
                     {
@@ -172,11 +169,8 @@ namespace SyncFoodApi.Controllers.FoodContainers
 
                 else
                     return BadRequest();
-            }
-
-            else
-                return NotFound();
-        }
+            
+        }*/
 
        
 

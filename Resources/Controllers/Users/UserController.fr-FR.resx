@@ -117,7 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Email address or password a" xml:space="preserve">
-    <value>L'adresse email ou le mot de passe sont invalide</value>
+  <data name="login.incorrect" xml:space="preserve">
+    <value>L'adresse email ou le mot de passe est incorrect</value>
+  </data>
+  <data name="register.invalid.format" xml:space="preserve">
+    <value>Le format de l'adresse email ou du mot de passe est invalide</value>
+  </data>
+  <data name="register.unavailable.username" xml:space="preserve">
+    <value>Le nom d'utilisateur demandé n'est pas disponible</value>
+  </data>
+  <data name="user.notfound" xml:space="preserve">
+    <value>L'utilisateur demandé est introuvable</value>
   </data>
 </root>
