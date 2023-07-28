@@ -89,7 +89,7 @@ namespace SyncFoodApi.Controllers.Users
 
             // mauvais mdp
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                return Unauthorized("login.incorrect");
+                return Unauthorized(_Localizer["login.incorrect"]);
 
 
             if (user.Token == null)
