@@ -136,7 +136,7 @@ namespace SyncFoodApi.Controllers.Users
 
         }
 
-        [HttpGet("info/username/{username}/{discriminator}")]
+        [HttpGet("info/username/{userName}/{discriminator}")]
         public ActionResult<User> GetUserByNameDiscriminator(string userName, string discriminator)
         {
             var user = getLogguedUser(User, _context);
