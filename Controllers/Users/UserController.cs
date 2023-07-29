@@ -165,6 +165,9 @@ namespace SyncFoodApi.Controllers.Users
             if (user == null)
                 return Unauthorized();
 
+            bool usernameUpdated = false;
+            bool emailupdated = false;
+            bool passwordUpdated = false;
 
             if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
             {
@@ -179,6 +182,8 @@ namespace SyncFoodApi.Controllers.Users
                 user.UserName = request.UserName;
                 user.Discriminator = newDiscriminator;
 
+                usernameUpdated = true;
+
             }
 
             if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
@@ -190,6 +195,8 @@ namespace SyncFoodApi.Controllers.Users
                     return Conflict(_Localizer["unavailable.email"]);
 
                 user.Email = request.Email;
+
+                emailupdated = true;
 
             }
 
@@ -203,9 +210,11 @@ namespace SyncFoodApi.Controllers.Users
                 // Ne sert à prioris à rien car va renvoyer le même token identique si l'ancien n'a pas expiré
                 /*user.Token = UserUtils.generateToken(_configuration, user);*/
 
+                passwordUpdated = true;
+
             }
 
-            bool updateUser = request.UserName != null || request.Email != null || request.Password != null;
+            bool updateUser = usernameUpdated || emailupdated || passwordUpdated;
 
             if (updateUser)
             {
