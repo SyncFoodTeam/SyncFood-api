@@ -58,13 +58,21 @@ namespace SyncFoodApi.Controllers.Users
 
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
-            // si l'email est déjà utilisé ou invalide ou encore si le mot de passe n'est pas valide on return
-            if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
-                return BadRequest(_Localizer["register.invalid.format"]);
+            if (!AllowedName(request.UserName))
+                return BadRequest(_Localizer["invalid.username"]);
+
+            if (!IsValidEmail(request.Email))
+                return BadRequest(_Localizer["invalid.email"]);
+
+            if (!IsPasswordValid(request.Password))
+                return BadRequest(_Localizer["invalid.password"]);
+
+            if (EmailAlreadyUsed)
+                return Conflict(_Localizer["unavailable.email"]);
 
 
             if (registeredUser.Discriminator == string.Empty)
-                return Conflict(_Localizer["register.unavailable.username"]);
+                return Conflict(_Localizer["unavailable.username"]);
 
 
             _context.Users.Add(registeredUser);
@@ -82,13 +90,8 @@ namespace SyncFoodApi.Controllers.Users
 
             User user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == request.Email.ToLower());
 
-            // mail qui existe pas
-            if (user == null)
-                return Unauthorized(_Localizer["login.incorrect"]);
-
-
-            // mauvais mdp
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            // mail qui existe pas ou mauvais mdp
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
                 return Unauthorized(_Localizer["login.incorrect"]);
 
 
@@ -144,18 +147,10 @@ namespace SyncFoodApi.Controllers.Users
             if (user == null)
                 return Unauthorized();
 
-/*            String[] splitted = userNameDiscriminator.Split('#');
-            if (splitted.Length != 2)
-                return BadRequest("Invalid username");
-
-            String userName = splitted[0];
-            String discriminator = splitted[1];*/
-            
-
             User requestedUser = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
 
             if (requestedUser == null)
-                return NotFound();
+                return NotFound(_Localizer["user.notfound"]);
 
             UserPublicDTO userPublic = (UserPublicDTO)requestedUser;
             return Ok(userPublic);
@@ -170,80 +165,57 @@ namespace SyncFoodApi.Controllers.Users
             if (user == null)
                 return Unauthorized();
 
-            bool emailValid = false;
-            bool passwordValid = false;
-            bool userNameValid = false;
-
-            bool emailAsChanged = false;
-            bool passwordAsChanged = false;
-            bool userNameUpdated = false;
-
-            bool updateUser = false;
-
-            string newDiscriminator = string.Empty;
 
             if (request.UserName != null)
             {
-                userNameUpdated = true;
-
                 if (!AllowedName(request.UserName))
-                    return BadRequest("Invalid username");
+                    return BadRequest(_Localizer["invalid.username"]);
 
-                newDiscriminator = discriminatorGenerator(_context, request.UserName);
+                string newDiscriminator = discriminatorGenerator(_context, request.UserName);
 
                 if (newDiscriminator == null)
-                    return Conflict("Username unavailable");
+                    return Conflict(_Localizer["unavailable.username"]);
 
-                userNameValid = true;
                 user.UserName = request.UserName;
+                user.Discriminator = newDiscriminator;
 
             }
 
             if (request.Email != null)
             {
-                emailAsChanged = true;
-                emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+                if (!IsValidEmail(request.Email))
+                    return BadRequest(_Localizer["invalid.email"]);
 
-                if (emailValid)
-                    user.Email = request.Email;
+                if (_context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower()))
+                    return Conflict(_Localizer["unavailable.email"]);
+
+                user.Email = request.Email;
+
             }
 
             if (request.Password != null)
             {
-                passwordAsChanged = true;
-                passwordValid = IsPasswordValid(request.Password);
+                if (!IsPasswordValid(request.Password))
+                    return BadRequest(_Localizer["invalid.password"]);
 
-                if (passwordValid)
-                {
-                    user.Password = user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
-                    // Par mesure de sécurité on génère un nouveau token quand l'utilisateur change son mot de passe
-                    user.Token = UserUtils.generateToken(_configuration, user);
-
-                }
-
+                user.Password = user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                // Par mesure de sécurité on génère un nouveau token quand l'utilisateur change son mot de passe
+                // Ne sert à prioris à rien car va renvoyer le même token identique si l'ancien n'a pas expiré
+                /*user.Token = UserUtils.generateToken(_configuration, user);*/
 
             }
 
-            // Détermine si on doit mettre à jours l'utilisateur
-            // pour se faire le mail le mot de passe et le nom d'utilisateur doivent être valide si ils sont renseigné
-            updateUser = !(emailAsChanged && !emailValid || passwordAsChanged && !passwordValid || userNameUpdated && !userNameValid);
-
+            bool updateUser = request.UserName != null || request.Email != null || request.Password != null;
 
             if (updateUser)
             {
-
                 user.UpdatedDate = DateTime.Now;
-
                 _context.Users.Update(user);
                 _context.SaveChanges();
-
-
             }
 
             UserPrivateDTO userPrivate = (UserPrivateDTO)user;
             return Ok(userPrivate);
-            /*            else
-                            return BadRequest();*/
 
         }
 
