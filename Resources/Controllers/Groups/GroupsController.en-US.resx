@@ -117,25 +117,27 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="invalid.email" xml:space="preserve">
-    <value>The email address format is invalid</value>
+  <data name="group.alreadyexist" xml:space="preserve">
+    <value>A group already exists with that name</value>
   </data>
-  <data name="invalid.password" xml:space="preserve">
-    <value>the password format is invalid.
-It must contain a minimum of 6 characters and be in upper and lower case.</value>
+  <data name="group.noaccess" xml:space="preserve">
+    <value>You don't have access to this group</value>
   </data>
-  <data name="invalid.username" xml:space="preserve">
-    <value>Username format is invalid.
+  <data name="group.notfound" xml:space="preserve">
+    <value>The requested group cannot be found</value>
+  </data>
+  <data name="group.notowner" xml:space="preserve">
+    <value>You must be the group owner</value>
+  </data>
+  <data name="group.usernotin" xml:space="preserve">
+    <value>The requested user is not present in the group</value>
+  </data>
+  <data name="invalid.budget" xml:space="preserve">
+    <value>The budget cannot be negative</value>
+  </data>
+  <data name="invalid.groupname" xml:space="preserve">
+    <value>Group name format is invalid.
 It must not contain special characters</value>
-  </data>
-  <data name="login.incorrect" xml:space="preserve">
-    <value>Email address or password is incorrect</value>
-  </data>
-  <data name="unavailable.email" xml:space="preserve">
-    <value>The requested email address is already in use</value>
-  </data>
-  <data name="unavailable.username" xml:space="preserve">
-    <value>The requested username is unavailable</value>
   </data>
   <data name="user.notfound" xml:space="preserve">
     <value>The requested user cannot be found</value>

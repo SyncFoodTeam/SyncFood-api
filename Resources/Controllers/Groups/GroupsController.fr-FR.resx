@@ -117,27 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="invalid.email" xml:space="preserve">
-    <value>The email address format is invalid</value>
+  <data name="group.alreadyexist" xml:space="preserve">
+    <value>Un groupe existe déjà avec ce nom</value>
   </data>
-  <data name="invalid.password" xml:space="preserve">
-    <value>the password format is invalid.
-It must contain a minimum of 6 characters and be in upper and lower case.</value>
+  <data name="group.noaccess" xml:space="preserve">
+    <value>Vous n'avez pas accès à ce groupe</value>
   </data>
-  <data name="invalid.username" xml:space="preserve">
-    <value>Username format is invalid.
-It must not contain special characters</value>
+  <data name="group.notfound" xml:space="preserve">
+    <value>Le groupe demandé n'existe pas</value>
   </data>
-  <data name="login.incorrect" xml:space="preserve">
-    <value>Email address or password is incorrect</value>
+  <data name="group.notowner" xml:space="preserve">
+    <value>Vous devez être le propriétaire du groupe</value>
   </data>
-  <data name="unavailable.email" xml:space="preserve">
-    <value>The requested email address is already in use</value>
+  <data name="group.usernotin" xml:space="preserve">
+    <value>L'utilisateur demandé n'est pas présent dans le groupe</value>
   </data>
-  <data name="unavailable.username" xml:space="preserve">
-    <value>The requested username is unavailable</value>
+  <data name="invalid.budget" xml:space="preserve">
+    <value>Le budget ne peut pas être négatif</value>
+  </data>
+  <data name="invalid.groupname" xml:space="preserve">
+    <value>Le format du nom du groupe est invalide.
+Il ne doit pas contenir de caractères spéciaux</value>
   </data>
   <data name="user.notfound" xml:space="preserve">
-    <value>The requested user cannot be found</value>
+    <value>L'utilisateur demandé est introuvable</value>
   </data>
 </root>

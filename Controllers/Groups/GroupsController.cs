@@ -14,6 +14,7 @@ using static SyncFoodApi.Controllers.Users.UserUtils;
 using static SyncFoodApi.Controllers.SyncFoodUtils;
 using static SyncFoodApi.Controllers.Groups.GroupUtils;
 using NuGet.Protocol;
+using Microsoft.Extensions.Localization;
 
 namespace SyncFoodApi.Controllers.Groups
 {
@@ -24,11 +25,13 @@ namespace SyncFoodApi.Controllers.Groups
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IStringLocalizer<GroupsController> _localization;
 
-        public GroupsController(SyncFoodContext context, IConfiguration configuration)
+        public GroupsController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<GroupsController> localizer)
         {
             _context = context;
             _configuration = configuration;
+            _localization = localizer;
         }
 
         [HttpPost("create")]
@@ -39,12 +42,16 @@ namespace SyncFoodApi.Controllers.Groups
             if (user == null)
                 return Unauthorized();
 
-            // on vérifie que l'utilisateur n'a pas déjà un groupe du même nom
-            if (_context.Groups.Include(group => group.Owner).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user))
-                return Conflict();
 
             if (!AllowedName(request.Name))
-                return BadRequest();
+                return BadRequest(_localization["invalid.groupname"]);
+
+            // on vérifie que l'utilisateur n'a pas déjà un groupe du même nom
+            if (_context.Groups.Include(group => group.Owner).Any(x => x.Name.ToLower() == request.Name.ToLower() && x.Owner == user))
+                return Conflict(_localization["group.alreadyexist"]);
+
+            if (request.Budget < 0)
+                return BadRequest(_localization["invalid.budget"]);
 
             Group group = new Group
             {
@@ -77,23 +84,50 @@ namespace SyncFoodApi.Controllers.Groups
             Group group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
 
             if (group == null)
-                return NotFound();
+                return NotFound(_localization["group.notfound"]);
 
             if (group.Owner != user)
-                return Forbid();
+                return Forbid(_localization["group.notowner"]);
 
-            if (request.Name != string.Empty && request.Name != null)
+            bool nameUpdated = false;
+            bool descriptionUpdated = false;
+            bool budgetUpdated = false;
+
+            if (request.Name != null && request.Name.ToLower() != group.Name.ToLower())
+            {
+                if (!AllowedName(request.Name))
+                    return BadRequest(_localization["invalid.groupname"]);
+
                 group.Name = request.Name;
+                nameUpdated = true;
+            }
 
-            if (request.Description != string.Empty && request.Description != null)
+            if (request.Description != null && request.Description.ToLower() != group.Description.ToLower())
+            {
                 group.Description = request.Description;
+                descriptionUpdated = true;
 
-            if (request.Budget != 0f)
+            }
+
+            if (request.Budget != group.Budget)
+            {
+
+                if (request.Budget < 0)
+                    return BadRequest(_localization["invalid.budget"]);
+
                 group.Budget = request.Budget;
+                budgetUpdated = true;
+            }
 
-            group.UpdatedDate = DateTime.Now;
-            _context.Groups.Update(group);
-            _context.SaveChanges();
+            bool updateGroup = nameUpdated || descriptionUpdated || budgetUpdated;
+
+            if (updateGroup)
+            {
+                group.UpdatedDate = DateTime.Now;
+                _context.Groups.Update(group);
+                _context.SaveChanges();
+
+            }
 
             GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
             return Ok(groupPrivateLite);
@@ -125,10 +159,10 @@ namespace SyncFoodApi.Controllers.Groups
             var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
 
             if (group == null)
-                return NotFound();
+                return NotFound(_localization["group.notfound"]);
 
             if (!group.Members.Contains(user))
-                return Forbid();
+                return Forbid(_localization["group.noaccess"]);
 
             GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
             return Ok(groupPrivate);
@@ -146,12 +180,13 @@ namespace SyncFoodApi.Controllers.Groups
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
 
             if (group == null)
-                return NotFound();
+                return NotFound(_localization["group.notfound"]);
 
             if (group.Owner != user)
-                return Forbid();
+                return Forbid(_localization["group.notowner"]);
 
             _context.Groups.Remove(group);
+
             GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
             return Ok(groupPrivateLite);
 
@@ -169,11 +204,14 @@ namespace SyncFoodApi.Controllers.Groups
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User userToAdd = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (group == null || userToAdd == null)
-                return NotFound();
+            if (group == null)
+                return NotFound(_localization["group.notfound"]);
+
+            if (userToAdd == null)
+                return NotFound(_localization["user.notfound"]);
 
             if (group.Owner != user)
-                return Forbid();
+                return Forbid(_localization["group.notowner"]);
 
 
             if (!group.Members.Contains(userToAdd))
@@ -201,11 +239,14 @@ namespace SyncFoodApi.Controllers.Groups
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User userToRemove = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (group == null || userToRemove == null)
-                return NotFound();
+            if (group == null)
+                return NotFound(_localization["group.notfound"]);
+
+            if (userToRemove == null)
+                return NotFound(_localization["user.notfound"]);
 
             if (group.Owner != user)
-                return Forbid();
+                return Forbid(_localization["group.notowner"]);
 
 
             if (group.Members.Contains(userToRemove))
@@ -230,14 +271,17 @@ namespace SyncFoodApi.Controllers.Groups
             Group group = _context.Groups.Include(x => x.Owner).Include(x => x.Members).FirstOrDefault(x => x.Id == groupID);
             User newOwner = _context.Users.FirstOrDefault(x => x.Id == userID);
 
-            if (newOwner == null || group == null)
-                return NotFound();
+            if (group == null)
+                return NotFound(_localization["group.notfound"]);
+
+            if (newOwner == null)
+                return NotFound(_localization["user.notfound"]);
 
             if (user != group.Owner)
-                return Forbid();
+                return Forbid(_localization["group.notowner"]);
 
             if (!group.Members.Contains(newOwner))
-                return BadRequest();
+                return BadRequest(_localization["group.usernotin"]);
 
             group.Owner = newOwner;
             _context.Groups.Update(group);
