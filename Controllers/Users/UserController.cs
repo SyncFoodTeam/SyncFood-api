@@ -166,7 +166,7 @@ namespace SyncFoodApi.Controllers.Users
                 return Unauthorized();
 
 
-            if (request.UserName != null)
+            if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
             {
                 if (!AllowedName(request.UserName))
                     return BadRequest(_Localizer["invalid.username"]);
@@ -181,7 +181,7 @@ namespace SyncFoodApi.Controllers.Users
 
             }
 
-            if (request.Email != null)
+            if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
             {
                 if (!IsValidEmail(request.Email))
                     return BadRequest(_Localizer["invalid.email"]);
@@ -193,7 +193,7 @@ namespace SyncFoodApi.Controllers.Users
 
             }
 
-            if (request.Password != null)
+            if (request.Password != null && !BCrypt.Net.BCrypt.Verify(request.Password,user.Password))
             {
                 if (!IsPasswordValid(request.Password))
                     return BadRequest(_Localizer["invalid.password"]);
