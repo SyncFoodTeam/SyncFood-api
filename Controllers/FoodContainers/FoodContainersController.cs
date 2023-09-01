@@ -54,6 +54,9 @@ namespace SyncFoodApi.Controllers.FoodContainers
             if (_context.FoodContainers.Include(x => x.group).Any(x => x.group == group && x.Name.ToLower() == request.Name.ToLower()))
                 return Conflict(_FoodContainer_Localizer["foodcontainer.alreadyexist"]);
 
+            if (!group.Members.Contains(user))
+                return BadRequest();
+
             FoodContainer newFoodContainer = new FoodContainer()
             {
                 Name = request.Name,
