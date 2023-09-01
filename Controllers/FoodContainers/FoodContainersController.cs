@@ -55,7 +55,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             _context.FoodContainers.Add(newFoodContainer);
             _context.SaveChanges();
 
-            return Ok((PrivateFoodContainerDTO)newFoodContainer);
+            return Ok((FoodContainerPrivateDTO)newFoodContainer);
         }
 
         [HttpPatch("edit/{FoodContainerID}")]
@@ -92,7 +92,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
                 _context.SaveChanges();
 
             }
-            return Ok((PrivateFoodContainerDTO)foodContainer);
+            return Ok((FoodContainerPrivateDTO)foodContainer);
         }
 
         [HttpDelete("delete")]
@@ -111,7 +111,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             _context.FoodContainers.Remove(foodContainer);
             _context.SaveChanges();
 
-            return Ok((PrivateFoodContainerDTO)foodContainer);
+            return Ok((FoodContainerPrivateDTO)foodContainer);
 
         }
 

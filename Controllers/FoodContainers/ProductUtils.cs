@@ -4,7 +4,7 @@ using SyncFoodApi.Models;
 
 namespace SyncFoodApi.Controllers.FoodContainers
 {
-    public static class FoodContainerUtils
+    public static class ProductUtils
     {
         // Prend une liste de Product et renvoi l'équivalent en ProductPrivateDTO
         public static List<ProductPrivateDTO> GetProductsPrivate(List<Product> products)
