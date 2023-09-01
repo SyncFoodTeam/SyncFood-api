@@ -20,8 +20,8 @@ namespace SyncFoodApi.Controllers.Users
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
         // private readonly ILogger _logger;
-        private readonly IStringLocalizer<UserController> _Localizer;
-        public UserController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<UserController> localizer)
+        private readonly IStringLocalizer<UserController> _User_Localizer;
+        public UserController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<UserController> userLocalizer)
         {
             // context de base de donnée
             _context = context;
@@ -33,8 +33,7 @@ namespace SyncFoodApi.Controllers.Users
             // _logger = logguer;
 
             // Traduction
-            _Localizer = localizer;
-            _Localizer = localizer;
+            _User_Localizer = userLocalizer;
         }
 
 
@@ -59,20 +58,20 @@ namespace SyncFoodApi.Controllers.Users
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
             if (!AllowedName(request.UserName))
-                return BadRequest(_Localizer["invalid.username"]);
+                return BadRequest(_User_Localizer["invalid.username"]);
 
             if (!IsValidEmail(request.Email))
-                return BadRequest(_Localizer["invalid.email"]);
+                return BadRequest(_User_Localizer["invalid.email"]);
 
             if (!IsPasswordValid(request.Password))
-                return BadRequest(_Localizer["invalid.password"]);
+                return BadRequest(_User_Localizer["invalid.password"]);
 
             if (EmailAlreadyUsed)
-                return Conflict(_Localizer["unavailable.email"]);
+                return Conflict(_User_Localizer["unavailable.email"]);
 
 
             if (registeredUser.Discriminator == string.Empty)
-                return Conflict(_Localizer["unavailable.username"]);
+                return Conflict(_User_Localizer["unavailable.username"]);
 
 
             _context.Users.Add(registeredUser);
@@ -92,7 +91,7 @@ namespace SyncFoodApi.Controllers.Users
 
             // mail qui existe pas ou mauvais mdp
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                return Unauthorized(_Localizer["login.incorrect"]);
+                return Unauthorized(_User_Localizer["login.incorrect"]);
 
 
             if (user.Token == null)
@@ -132,7 +131,7 @@ namespace SyncFoodApi.Controllers.Users
             User requestedUser = _context.Users.FirstOrDefault(x => x.Id == userID);
 
             if (requestedUser == null)
-                return NotFound(_Localizer["user.notfound"]);
+                return NotFound(_User_Localizer["user.notfound"]);
 
             UserPublicDTO userPublic = (UserPublicDTO)user;
             return Ok(userPublic);
@@ -150,7 +149,7 @@ namespace SyncFoodApi.Controllers.Users
             User requestedUser = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
 
             if (requestedUser == null)
-                return NotFound(_Localizer["user.notfound"]);
+                return NotFound(_User_Localizer["user.notfound"]);
 
             UserPublicDTO userPublic = (UserPublicDTO)requestedUser;
             return Ok(userPublic);
@@ -172,12 +171,12 @@ namespace SyncFoodApi.Controllers.Users
             if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
             {
                 if (!AllowedName(request.UserName))
-                    return BadRequest(_Localizer["invalid.username"]);
+                    return BadRequest(_User_Localizer["invalid.username"]);
 
                 string newDiscriminator = discriminatorGenerator(_context, request.UserName);
 
                 if (newDiscriminator == null)
-                    return Conflict(_Localizer["unavailable.username"]);
+                    return Conflict(_User_Localizer["unavailable.username"]);
 
                 user.UserName = request.UserName;
                 user.Discriminator = newDiscriminator;
@@ -189,10 +188,10 @@ namespace SyncFoodApi.Controllers.Users
             if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
             {
                 if (!IsValidEmail(request.Email))
-                    return BadRequest(_Localizer["invalid.email"]);
+                    return BadRequest(_User_Localizer["invalid.email"]);
 
                 if (_context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower()))
-                    return Conflict(_Localizer["unavailable.email"]);
+                    return Conflict(_User_Localizer["unavailable.email"]);
 
                 user.Email = request.Email;
 
@@ -203,7 +202,7 @@ namespace SyncFoodApi.Controllers.Users
             if (request.Password != null && !BCrypt.Net.BCrypt.Verify(request.Password,user.Password))
             {
                 if (!IsPasswordValid(request.Password))
-                    return BadRequest(_Localizer["invalid.password"]);
+                    return BadRequest(_User_Localizer["invalid.password"]);
 
                 user.Password = user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
                 // Par mesure de sécurité on génère un nouveau token quand l'utilisateur change son mot de passe

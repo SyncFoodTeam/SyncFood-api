@@ -139,7 +139,4 @@
     <value>Group name format is invalid.
 It must not contain special characters</value>
   </data>
-  <data name="user.notfound" xml:space="preserve">
-    <value>The requested user cannot be found</value>
-  </data>
 </root>

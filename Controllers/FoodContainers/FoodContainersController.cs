@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 using SyncFoodApi.Controllers.FoodContainers.DTO;
 using static SyncFoodApi.Controllers.Users.UserUtils;
 using static SyncFoodApi.Controllers.SyncFoodUtils;
+using Microsoft.Extensions.Localization;
+using SyncFoodApi.Controllers.Groups;
+using System.Configuration;
 
 namespace SyncFoodApi.Controllers.FoodContainers
 {
@@ -20,10 +23,14 @@ namespace SyncFoodApi.Controllers.FoodContainers
     public class FoodContainersController : Controller
     {
         private readonly SyncFoodContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IStringLocalizer<GroupsController> _localization;
 
-        public FoodContainersController(SyncFoodContext context)
+        public FoodContainersController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<GroupsController> localizer)
         {
             _context = context;
+            _configuration = configuration;
+            _localization = localizer;
         }
 
         [HttpPost("create")]
@@ -32,7 +39,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-                return Unauthorized();
+                return Unauthorized(_localization[""]);
 
             Group group = _context.Groups.FirstOrDefault(x => x.Id == request.GroupId);
 
