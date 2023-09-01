@@ -22,12 +22,12 @@ namespace SyncFoodApi.Controllers.Products
             _context = context;
         }
 
-        /*
-                [HttpPost("create")]
-                public ActionResult<Product> createProduct()*/
-/*
-        [HttpGet("findsyncfood")]
-        public ActionResult<List<Product>> findProductOnSyncFood(string productName)
+
+       /* [HttpPost("create")]
+        public ActionResult<Product> createProduct()*/
+
+        [HttpGet("findsyncfoodbyname")]
+        public ActionResult<List<Product>> findProductOnSyncFoodByName(string productName)
         {
             var user = getLogguedUser(User, _context);
 
@@ -40,14 +40,14 @@ namespace SyncFoodApi.Controllers.Products
             {
                 return Ok(getProductsPublic(products));
             }
-            
+
             else
                 return NotFound();
         }
 
 
-        [HttpGet("findopenfood")]
-        public ActionResult<List<ProductPublicDTO>> findProductOnOpenFood(string productName)
+        [HttpGet("findopenfoodByName")]
+        public ActionResult<List<ProductPublicDTO>> findProductOnOpenFoodByName(string productName)
         {
             var user = getLogguedUser(User, _context);
 
@@ -59,12 +59,17 @@ namespace SyncFoodApi.Controllers.Products
             return products;
         }
 
- *//*       [HttpPost("create")]
-        public ActionResult<Product> createProduct(ProductCreateDTO request){
+        /*[HttpPost("create")]
+        public ActionResult<Product> createProduct(ProductCreateDTO request)
         {
+            {
+
+            }*/
+
 
         }
-*/
+
+    /*[HttpGet("findopenfoodbybarecode")]
+    public ActionResult<ProductPrivateDTO>*/
 
     }
-}

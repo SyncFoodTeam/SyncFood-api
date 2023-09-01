@@ -216,7 +216,7 @@ namespace SyncFoodApi.Controllers.Groups
 
             if (group.Owner != user)
                 return Forbid(_Group_localization["group.notowner"]);
-
+                
 
             if (!group.Members.Contains(userToAdd))
             {

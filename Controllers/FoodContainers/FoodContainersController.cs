@@ -24,13 +24,15 @@ namespace SyncFoodApi.Controllers.FoodContainers
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IStringLocalizer<GroupsController> _localization;
+        private readonly IStringLocalizer<GroupsController> _Group_Localizer;
+        private readonly IStringLocalizer<FoodContainersController> _FoodContainer_Localizer;
 
-        public FoodContainersController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<GroupsController> localizer)
+        public FoodContainersController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<GroupsController> groupLocalizer, IStringLocalizer<FoodContainersController> foodContainerLocalizer)
         {
             _context = context;
             _configuration = configuration;
-            _localization = localizer;
+            _Group_Localizer = groupLocalizer;
+            _FoodContainer_Localizer = foodContainerLocalizer;
         }
 
         [HttpPost("create")]
@@ -39,18 +41,18 @@ namespace SyncFoodApi.Controllers.FoodContainers
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-                return Unauthorized(_localization[""]);
+                return Unauthorized();
 
             Group group = _context.Groups.FirstOrDefault(x => x.Id == request.GroupId);
 
             if (group == null)
-                return NotFound();
+                return NotFound(_Group_Localizer["group.notfound"]);
 
             if (!AllowedName(request.Name))
-                return BadRequest();
+                return BadRequest(_FoodContainer_Localizer["invalid.foodcontainername"]);
 
             if (_context.FoodContainers.Include(x => x.group).Any(x => x.group == group && x.Name.ToLower() == request.Name.ToLower()))
-                return Conflict();
+                return Conflict(_FoodContainer_Localizer["foodcontainer.alreadyexist"]);
 
             FoodContainer newFoodContainer = new FoodContainer()
             {
@@ -74,7 +76,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
                 return Unauthorized();
 
             if (!AllowedName(request.Name))
-                return BadRequest();
+                return BadRequest(_FoodContainer_Localizer["invalid.foodcontainername"]);
 
             FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == request.FoodContainerID);
 
