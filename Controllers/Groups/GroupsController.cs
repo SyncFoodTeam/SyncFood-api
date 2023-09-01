@@ -186,6 +186,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return Forbid(_localization["group.notowner"]);
 
             _context.Groups.Remove(group);
+            _context.SaveChanges();
 
             GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
             return Ok(groupPrivateLite);
