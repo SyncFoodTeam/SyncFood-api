@@ -68,8 +68,8 @@ namespace SyncFoodApi.Controllers.Products
 
 
         }
-
-    /*[HttpGet("findopenfoodbybarecode")]
+    /*
+    [HttpPut("findopenfoodbybarecode")]
     public ActionResult<ProductPrivateDTO>*/
 
     }

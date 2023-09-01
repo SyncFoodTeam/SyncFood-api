@@ -90,7 +90,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return NotFound(_Group_localization["group.notfound"]);
 
             if (group.Owner != user)
-                return Forbid(_Group_localization["group.notowner"]);
+                return BadRequest(_Group_localization["group.notowner"]);
 
             bool nameUpdated = false;
             bool descriptionUpdated = false;
@@ -161,11 +161,8 @@ namespace SyncFoodApi.Controllers.Groups
 
             var group = _context.Groups.Include(x => x.Members).Include(x => x.FoodContainers).Include(x => x.ShoppingList).Include(x => x.Owner).FirstOrDefault(x => x.Id == groupID);
 
-            if (group == null)
+            if (group == null || !group.Members.Contains(user))
                 return NotFound(_Group_localization["group.notfound"]);
-
-            if (!group.Members.Contains(user))
-                return Forbid(_Group_localization["group.noaccess"]);
 
             GroupPrivateDTO groupPrivate = (GroupPrivateDTO)group;
             return Ok(groupPrivate);
@@ -186,7 +183,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return NotFound(_Group_localization["group.notfound"]);
 
             if (group.Owner != user)
-                return Forbid(_Group_localization["group.notowner"]);
+                return BadRequest(_Group_localization["group.notowner"]);
 
             _context.Groups.Remove(group);
             _context.SaveChanges();
@@ -215,7 +212,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return NotFound(_User_localization["user.notfound"]);
 
             if (group.Owner != user)
-                return Forbid(_Group_localization["group.notowner"]);
+                return BadRequest(_Group_localization["group.notowner"]);
                 
 
             if (!group.Members.Contains(userToAdd))
@@ -250,7 +247,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return NotFound(_User_localization["user.notfound"]);
 
             if (group.Owner != user)
-                return Forbid(_Group_localization["group.notowner"]);
+                return BadRequest(_Group_localization["group.notowner"]);
 
 
             if (group.Members.Contains(userToRemove))
@@ -282,7 +279,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return NotFound(_User_localization["user.notfound"]);
 
             if (user != group.Owner)
-                return Forbid(_Group_localization["group.notowner"]);
+                return BadRequest(_Group_localization["group.notowner"]);
 
             if (!group.Members.Contains(newOwner))
                 return BadRequest(_Group_localization["group.usernotin"]);
