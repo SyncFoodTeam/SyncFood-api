@@ -105,7 +105,7 @@ namespace SyncFoodApi.Controllers.Groups
                 nameUpdated = true;
             }
 
-            if (request.Description != null && request.Description.ToLower() != group.Description.ToLower())
+            if (request.Description != null)
             {
                 group.Description = request.Description;
                 descriptionUpdated = true;
