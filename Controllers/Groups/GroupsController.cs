@@ -185,6 +185,8 @@ namespace SyncFoodApi.Controllers.Groups
             if (group.Owner != user)
                 return BadRequest(_Group_localization["group.notowner"]);
 
+
+            group.empty(_context);
             _context.Groups.Remove(group);
             _context.SaveChanges();
 

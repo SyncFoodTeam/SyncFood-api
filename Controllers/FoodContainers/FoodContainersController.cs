@@ -120,6 +120,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             if (foodContainer == null)
                 return NotFound();
 
+            foodContainer.empty(_context);
             _context.FoodContainers.Remove(foodContainer);
             _context.SaveChanges();
 

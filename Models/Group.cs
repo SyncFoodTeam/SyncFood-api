@@ -1,4 +1,6 @@
-﻿namespace SyncFoodApi.Models
+﻿using SyncFoodApi.dbcontext;
+
+namespace SyncFoodApi.Models
 {
     public class Group
     {
@@ -12,5 +14,19 @@
         public ShoppingList ShoppingList { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
+
+        // fonction pour vider le group (utile pour la suppression en cascade)
+        public void empty(SyncFoodContext _context)
+        {
+            foreach (FoodContainer foodcontainer in this.FoodContainers)
+            {
+                foodcontainer.empty(_context);
+                _context.Remove(foodcontainer);
+            }
+
+            
+
+            _context.SaveChanges();
+        }
     }
 }

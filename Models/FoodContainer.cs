@@ -1,4 +1,6 @@
-﻿namespace SyncFoodApi.Models
+﻿using SyncFoodApi.dbcontext;
+
+namespace SyncFoodApi.Models
 {
     public class FoodContainer
     {
@@ -11,5 +13,15 @@
 
         // DB
         public Group group { get; set; }
+
+        // fonction pour vider le foodcontainer (utile pour la suppression en cascade)
+        public void empty(SyncFoodContext _context)
+        {
+            foreach (Product product in this.Products)
+            {
+                _context.Products.Remove(product);
+            }
+            _context.SaveChanges();
+        }
     }
 }
