@@ -21,55 +21,26 @@ namespace SyncFoodApi.Controllers.Products
         {
             _context = context;
         }
+        /*
 
-
-       /* [HttpPost("create")]
-        public ActionResult<Product> createProduct()*/
-
-        [HttpGet("findsyncfoodbyname")]
-        public ActionResult<List<Product>> findProductOnSyncFoodByName(string productName)
+        [HttpPost("add")]
+        public ActionResult<ProductPrivateDTO> addProduct(ProductAddDTO request)
         {
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-                return Unauthorized();
-
-            List<Product> products = _context.Products.Where(x => x.Name.ToLower() == productName.ToLower()).ToList();
-
-            if (products.Count > 0)
             {
-                return Ok(getProductsPublic(products));
+                return Unauthorized();
             }
 
-            else
-                return NotFound();
-        }
+            FoodContainer foodcontainer = _context.FoodContainers.Include(x => x.group).FirstOrDefault(x => x.Id == request.FoodContainerID);
 
+            if (foodcontainer == null)
+                return NotFound("foodcontainer introuvable");
 
-        [HttpGet("findopenfoodByName")]
-        public ActionResult<List<ProductPublicDTO>> findProductOnOpenFoodByName(string productName)
-        {
-            var user = getLogguedUser(User, _context);
-
-            if (user == null)
-                return Unauthorized();
-
-            List<ProductPublicDTO> products = new List<ProductPublicDTO>();
-            // TODO interroger l'api openFood
-            return products;
-        }
-
-        /*[HttpPost("create")]
-        public ActionResult<Product> createProduct(ProductCreateDTO request)
-        {
-            {
-
-            }*/
-
-
-        }
-    /*
-    [HttpPut("findopenfoodbybarecode")]
-    public ActionResult<ProductPrivateDTO>*/
+            if ()
+        }*/
 
     }
+
+}

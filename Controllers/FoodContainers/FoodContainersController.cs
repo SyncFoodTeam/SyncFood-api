@@ -43,7 +43,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             if (user == null)
                 return Unauthorized();
 
-            Group group = _context.Groups.FirstOrDefault(x => x.Id == request.GroupId);
+            Group group = _context.Groups.Include(x => x.Members).FirstOrDefault(x => x.Id == request.GroupId);
 
             if (group == null)
                 return NotFound(_Group_Localizer["group.notfound"]);
@@ -70,7 +70,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             return Ok((FoodContainerPrivateDTO)newFoodContainer);
         }
 
-        [HttpPatch("edit/{FoodContainerID}")]
+        [HttpPatch("edit")]
         public ActionResult<FoodContainer> EditFoodContainer(FoodContainerEditDTO request)
         {
             var user = getLogguedUser(User, _context);
@@ -124,6 +124,26 @@ namespace SyncFoodApi.Controllers.FoodContainers
             _context.SaveChanges();
 
             return Ok((FoodContainerPrivateDTO)foodContainer);
+
+        }
+
+        [HttpGet("get/{FoodContainerID}")]
+        public ActionResult<FoodContainer> getFoodContainer(int FoodContainerID)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+            FoodContainer foodcontainer = _context.FoodContainers.Include(x => x.Products).FirstOrDefault(x => x.Id == FoodContainerID);
+
+            if (foodcontainer == null)
+                return NotFound("foodcontainer introuvable");
+
+            // todo sécurité, vérifier si le user est dans le groupe
+
+            return Ok((FoodContainerPrivateDTO)foodcontainer);
+
 
         }
 
