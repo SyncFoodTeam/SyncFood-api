@@ -6,11 +6,11 @@ namespace SyncFoodApi.Controllers.Products.DTO
     public class ProductPublicDTO
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        //public required string Name { get; set; }
         public required float Price { get; set; }
         public required int BarCode { get; set; }
-        public NutriScore NutriScore { get; set; }
-        public float nutritionalValue { get; set; }
+        //public NutriScore NutriScore { get; set; }
+        //public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
@@ -19,11 +19,11 @@ namespace SyncFoodApi.Controllers.Products.DTO
             return new ProductPublicDTO
             {
                 Id = product.Id,
-                Name = product.Name,
+                //Name = product.Name,
                 Price = product.Price,
                 BarCode = product.BarCode,
-                NutriScore = product.NutriScore,
-                nutritionalValue = product.nutritionalValue,
+                //NutriScore = product.NutriScore,
+                //nutritionalValue = product.nutritionalValue,
                 ExpirationDate = product.ExpirationDate,
                 CreationDate = product.CreationDate
             };
@@ -34,12 +34,12 @@ namespace SyncFoodApi.Controllers.Products.DTO
     public class ProductPrivateDTO
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        //public required string Name { get; set; }
         public required float Price { get; set; }
         public int Quantity { get; set; } = 0;
         public required int BarCode { get; set; }
-        public NutriScore NutriScore { get; set; }
-        public float nutritionalValue { get; set; }
+        //public NutriScore NutriScore { get; set; }
+        //public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
@@ -48,11 +48,11 @@ namespace SyncFoodApi.Controllers.Products.DTO
             return new ProductPrivateDTO
             {
                 Id = product.Id,
-                Name = product.Name,
+                //Name = product.Name,
                 Price = product.Price,
                 BarCode = product.BarCode,
-                NutriScore = product.NutriScore,
-                nutritionalValue = product.nutritionalValue,
+                //NutriScore = product.NutriScore,
+                //nutritionalValue = product.nutritionalValue,
                 ExpirationDate = product.ExpirationDate,
                 CreationDate = product.CreationDate
             };

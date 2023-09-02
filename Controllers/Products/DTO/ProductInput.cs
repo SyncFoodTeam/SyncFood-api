@@ -4,14 +4,14 @@ namespace SyncFoodApi.Controllers.Products.DTO
 {
     public class ProductAddDTO
     {
-        public required string Name { get; set; }
+        /*public required string Name { get; set; }*/
         public required float Price { get; set; }
         public required int BarCode { get; set; }
-        public NutriScore NutriScore { get; set; }
-        public float nutritionalValue { get; set; }
+        /*public NutriScore NutriScore { get; set; }*/
+        /*public float nutritionalValue { get; set; }*/
+        public required int Quantity { get; set; }
         public DateTime ExpirationDate { get; set; }
         public required int FoodContainerID { get; set; }
-        public required int Quantity { get; set; }
 
     }
 

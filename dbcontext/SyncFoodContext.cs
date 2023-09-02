@@ -37,13 +37,13 @@ namespace SyncFoodApi.dbcontext
             modelBuilder.Entity<Group>().HasOne(group => group.ShoppingList).WithOne(shoppingList => shoppingList.Group).HasForeignKey<ShoppingList>(shoppingList => shoppingList.GroupId);
 
             // ShoppingList <=> Product
-            modelBuilder.Entity<ShoppingList>().HasMany(shoppingList => shoppingList.Products).WithMany(product => product.ShoppingLists);
+            modelBuilder.Entity<ShoppingList>().HasMany(shoppingList => shoppingList.Products).WithOne(product => product.ShoppingList);
 
             // FoodContainer <=> Group
             modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers);
 
             // FoodContainer <=> Product
-            modelBuilder.Entity<FoodContainer>().HasMany(foodContainer => foodContainer.Products).WithMany(product => product.FoodContainers);
+            modelBuilder.Entity<FoodContainer>().HasMany(foodContainer => foodContainer.Products).WithOne(product => product.FoodContainer);
             
         }
         #endregion
