@@ -20,7 +20,10 @@ namespace SyncFoodApi.Models
             foreach (Product product in this.Products)
             {
                 _context.Products.Remove(product);
+                _context.SaveChanges();
             }
+            this.Products = new List<Product>();
+
             _context.SaveChanges();
         }
     }

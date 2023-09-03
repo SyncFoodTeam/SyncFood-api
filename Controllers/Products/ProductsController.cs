@@ -60,6 +60,8 @@ namespace SyncFoodApi.Controllers.Products
                     ExpirationDate = request.ExpirationDate
                 };
 
+                Console.WriteLine(product.Quantity);
+
                 foodcontainer.Products.Add(product);
                 _context.FoodContainers.Update(foodcontainer);
             }
@@ -67,6 +69,7 @@ namespace SyncFoodApi.Controllers.Products
             else
             {
                 product.Quantity += request.Quantity;
+                Console.WriteLine(product.Quantity);
                 _context.Products.Update(product);
             }
 
