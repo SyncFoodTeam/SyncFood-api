@@ -80,9 +80,7 @@ namespace SyncFoodApi.Controllers.Groups
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-            {
                 return Unauthorized();
-            }
 
             Group group = _context.Groups.Include(x => x.Owner).FirstOrDefault(x => x.Id == request.groupID);
 
@@ -92,45 +90,48 @@ namespace SyncFoodApi.Controllers.Groups
             if (group.Owner != user)
                 return BadRequest(_Group_localization["group.notowner"]);
 
-            bool nameUpdated = false;
+            /*bool nameUpdated = false;
             bool descriptionUpdated = false;
-            bool budgetUpdated = false;
+            bool budgetUpdated = false;*/
 
-            if (request.Name != null && request.Name.ToLower() != group.Name.ToLower())
+            /*if (request.Name != null && request.Name.ToLower() != group.Name.ToLower())
+            {*/
+            if (request.Name != null)
             {
                 if (!AllowedName(request.Name))
                     return BadRequest(_Group_localization["invalid.groupname"]);
 
                 group.Name = request.Name;
-                nameUpdated = true;
+                // nameUpdated = true;
             }
 
+            /*if (request.Description != null)
+            {*/
             if (request.Description != null)
             {
                 group.Description = request.Description;
-                descriptionUpdated = true;
+                //descriptionUpdated = true;
 
             }
 
             if (request.Budget != group.Budget)
             {
-
                 if (request.Budget < 0)
                     return BadRequest(_Group_localization["invalid.budget"]);
 
                 group.Budget = request.Budget;
-                budgetUpdated = true;
+                //budgetUpdated = true;
             }
 
-            bool updateGroup = nameUpdated || descriptionUpdated || budgetUpdated;
+            //bool updateGroup = nameUpdated || descriptionUpdated || budgetUpdated;
 
-            if (updateGroup)
-            {
-                group.UpdatedDate = DateTime.Now;
-                _context.Groups.Update(group);
-                _context.SaveChanges();
+            /*if (updateGroup)
+            {*/
+            group.UpdatedDate = DateTime.Now;
+            _context.Groups.Update(group);
+            _context.SaveChanges();
 
-            }
+            //}
 
             GroupPrivateLitedDTO groupPrivateLite = (GroupPrivateLitedDTO)group;
             return Ok(groupPrivateLite);
@@ -186,7 +187,7 @@ namespace SyncFoodApi.Controllers.Groups
                 return BadRequest(_Group_localization["group.notowner"]);
 
 
-            group.empty(_context);
+            group.Empty(_context);
             _context.Groups.Remove(group);
             _context.SaveChanges();
 
