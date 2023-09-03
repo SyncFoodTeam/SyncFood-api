@@ -15,7 +15,7 @@ namespace SyncFoodApi.Models
         public Group group { get; set; }
 
         // fonction pour vider le foodcontainer (utile pour la suppression en cascade)
-        public void empty(SyncFoodContext _context)
+        public void Empty(SyncFoodContext _context)
         {
             foreach (Product product in this.Products)
             {

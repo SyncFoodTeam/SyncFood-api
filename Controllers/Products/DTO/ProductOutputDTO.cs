@@ -3,12 +3,12 @@
 namespace SyncFoodApi.Controllers.Products.DTO
 {
     // Produit générale
-    public class ProductPublicDTO
+    /*public class ProductPublicDTO
     {
         public int Id { get; set; }
         //public required string Name { get; set; }
-        public required float Price { get; set; }
         public required int BarCode { get; set; }
+        public required float Price { get; set; }
         //public NutriScore NutriScore { get; set; }
         //public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }
@@ -28,16 +28,16 @@ namespace SyncFoodApi.Controllers.Products.DTO
                 CreationDate = product.CreationDate
             };
         }
-    }
+    }*/
 
     // Produit présent dans un foodcontainer ou une shoopingList
     public class ProductPrivateDTO
     {
         public int Id { get; set; }
         //public required string Name { get; set; }
-        public required float Price { get; set; }
-        public int Quantity { get; set; } = 0;
         public required int BarCode { get; set; }
+        public required float Price { get; set; }
+        public int Quantity { get; set; }
         //public NutriScore NutriScore { get; set; }
         //public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }

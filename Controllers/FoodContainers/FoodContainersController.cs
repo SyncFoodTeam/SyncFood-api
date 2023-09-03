@@ -121,7 +121,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             if (foodContainer == null)
                 return NotFound();
 
-            foodContainer.empty(_context);
+            foodContainer.Empty(_context);
             _context.FoodContainers.Remove(foodContainer);
             _context.SaveChanges();
 
@@ -143,6 +143,28 @@ namespace SyncFoodApi.Controllers.FoodContainers
                 return NotFound("foodcontainer introuvable");
 
             // todo sécurité, vérifier si le user est dans le groupe
+
+            return Ok((FoodContainerPrivateDTO)foodcontainer);
+
+
+        }
+
+        [HttpDelete("delete/products")]
+        public ActionResult<FoodContainer> deleteFoodContainerProducts(int FoodContainerID)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+            FoodContainer foodcontainer = _context.FoodContainers.Include(x => x.Products).FirstOrDefault(x => x.Id == FoodContainerID);
+
+            if (foodcontainer == null)
+                return NotFound("foodcontainer introuvable");
+
+            foodcontainer.Products = new List<Product>();
+            _context.FoodContainers.Update(foodcontainer);
+            _context.SaveChanges();
 
             return Ok((FoodContainerPrivateDTO)foodcontainer);
 

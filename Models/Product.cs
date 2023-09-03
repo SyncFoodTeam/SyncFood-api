@@ -22,8 +22,8 @@
     {
         public int Id { get; set; }
         /*public required string Name { get; set; }*/
-        public required float Price { get; set; }
         public required int BarCode { get; set; }
+        public required float Price { get; set; }
         /*public NutriScore NutriScore { get; set; }*/
         /*public float nutritionalValue { get; set; }*/
         public int Quantity { get; set; } = 0;

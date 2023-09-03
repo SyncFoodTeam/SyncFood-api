@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using SyncFoodApi.Models;
 using SyncFoodApi.dbcontext;
 using static SyncFoodApi.Controllers.Users.UserUtils;
-using static SyncFoodApi.Controllers.Products.ProductUtils;
+//using static SyncFoodApi.Controllers.Products.ProductUtils;
 using SyncFoodApi.Controllers.Products.DTO;
 using SyncFoodApi.Controllers.FoodContainers.DTO;
 using Microsoft.AspNetCore.Authorization;
@@ -30,32 +30,37 @@ namespace SyncFoodApi.Controllers.Products
 
 
         [HttpPost("add")]
-        public ActionResult<FoodContainerPrivateDTO> addProduct(ProductAddDTO request)
+        public ActionResult<ProductPrivateDTO> addProduct(ProductAddDTO request)
         {
             var user = getLogguedUser(User, _context);
 
             if (user == null)
-            {
                 return Unauthorized();
-            }
+
+
+            if (request.Quantity <= 0)
+                return BadRequest("quantitée doit être > 0");
 
             FoodContainer foodcontainer = _context.FoodContainers.Include(x => x.group).Include(x => x.Products).FirstOrDefault(x => x.Id == request.FoodContainerID);
 
             if (foodcontainer == null)
                 return NotFound("foodcontainer introuvable");
 
-            Product product = _context.Products.FirstOrDefault(x => x.FoodContainer == foodcontainer && x.BarCode == request.BarCode);
+            Product product = _context.Products.Include(x => x.FoodContainer).FirstOrDefault(x => x.FoodContainer == foodcontainer && x.BarCode == request.BarCode);
 
             if (product == null)
             {
-                foodcontainer.Products.Add(new Product
+                product = new Product
                 {
                     /*Name = request.Name,*/
                     Price = request.Price,
                     BarCode = request.BarCode,
+                    Quantity = request.Quantity,
                     /*NutriScore = request.NutriScore,*/
                     ExpirationDate = request.ExpirationDate
-                });
+                };
+
+                foodcontainer.Products.Add(product);
                 _context.FoodContainers.Update(foodcontainer);
             }
 
@@ -67,7 +72,7 @@ namespace SyncFoodApi.Controllers.Products
 
             _context.SaveChanges();
 
-            return Ok((FoodContainerPrivateDTO)foodcontainer);
+            return Ok((ProductPrivateDTO)product);
 
 
         }

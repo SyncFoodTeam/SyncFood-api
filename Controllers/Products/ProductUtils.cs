@@ -3,7 +3,7 @@ using SyncFoodApi.Models;
 
 namespace SyncFoodApi.Controllers.Products
 {
-    public static class ProductUtils
+    /*public static class ProductUtils
     {
         public static List<ProductPublicDTO> getProductsPublic(List<Product> products)
         {
@@ -16,5 +16,5 @@ namespace SyncFoodApi.Controllers.Products
 
             return productsPublic;
         }
-    }
+    }*/
 }
