@@ -90,20 +90,21 @@ namespace SyncFoodApi.Controllers.FoodContainers
                 return Conflict();
 
 
-            bool updateFoodContainer = !(request.Name == string.Empty && request.Description == string.Empty);
+            //  bool updateFoodContainer = !(request.Name == string.Empty && request.Description == string.Empty);
 
-            if (request.Name != string.Empty && request.Name != null)
+            if (/*request.Name != string.Empty &&*/ request.Name != null)
                 foodContainer.Name = request.Name;
 
-            if (request.Description != string.Empty && request.Description != null)
+            if (/*request.Description != string.Empty && */request.Description != null)
                 foodContainer.Description = request.Description;
 
-            if (updateFoodContainer)
-            {
-                _context.FoodContainers.Update(foodContainer);
-                _context.SaveChanges();
+            /*if (updateFoodContainer)
+            {*/
+            foodContainer.UpdatedDate = DateTime.Now;
+            _context.FoodContainers.Update(foodContainer);
+            _context.SaveChanges();
 
-            }
+            //}
             return Ok((FoodContainerPrivateDTO)foodContainer);
         }
 
@@ -147,66 +148,6 @@ namespace SyncFoodApi.Controllers.FoodContainers
 
 
         }
-
-   /*     [HttpPost("product/add")]
-        public ActionResult<FoodContainer> FoodContainerAddProduct(int foodContainerID, int productID)
-        {
-            var user = getLogguedUser(User, _context);
-
-            if (user == null)
-                return Unauthorized();
-
-            FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
-            Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
-
-            if (product == null || foodContainer == null)
-                return NotFound(productID);
-
-            foodContainer.Products.Add(product);
-            _context.FoodContainers.Update(foodContainer);
-
-            return Ok((PrivateFoodContainerDTO)foodContainer);
-
-        }
-
-        [HttpPost("product/remove")]
-        public ActionResult<FoodContainer> FoodContainerRemoveProduct(int foodContainerID, int productID)
-        {
-            var user = getLogguedUser(User, _context);
-
-            if (user == null)
-                return Unauthorized();
-
-            FoodContainer foodContainer = _context.FoodContainers.FirstOrDefault(x => x.Id == foodContainerID);
-            Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
-
-            if (product == null || foodContainer == null)
-                return NotFound();
-
-            if (foodContainer.Products.Contains(product))
-                {
-                    foreach(Product currentProduct in foodContainer.Products)
-                    {
-                        if (currentProduct.Id == productID)
-                        {
-                            foodContainer.Products.Remove(currentProduct);
-                        }
-                    }
-
-                    _context.FoodContainers.Update(foodContainer);
-                    _context.SaveChanges();
-
-                    return Ok((PrivateFoodContainerDTO)foodContainer);
-
-                }
-
-                else
-                    return BadRequest();
-            
-        }*/
-
-       
-
 
     }
 }
