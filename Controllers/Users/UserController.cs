@@ -164,11 +164,13 @@ namespace SyncFoodApi.Controllers.Users
             if (user == null)
                 return Unauthorized();
 
-            bool usernameUpdated = false;
-            bool emailupdated = false;
-            bool passwordUpdated = false;
+            /* bool usernameUpdated = false;
+             bool emailupdated = false;
+             bool passwordUpdated = false;*/
 
-            if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
+            /*if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
+            {*/
+            if (request.UserName != null)
             {
                 if (!AllowedName(request.UserName))
                     return BadRequest(_User_Localizer["invalid.username"]);
@@ -180,27 +182,36 @@ namespace SyncFoodApi.Controllers.Users
 
                 user.UserName = request.UserName;
                 user.Discriminator = newDiscriminator;
-
-                usernameUpdated = true;
-
             }
 
-            if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
+            //usernameUpdated = true;
+
+            // }
+
+            /*if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
+            {*/
+            if (request.Email != null)
             {
+
                 if (!IsValidEmail(request.Email))
                     return BadRequest(_User_Localizer["invalid.email"]);
 
                 if (_context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower()))
                     return Conflict(_User_Localizer["unavailable.email"]);
 
+
                 user.Email = request.Email;
 
-                emailupdated = true;
+                //emailupdated = true;
 
             }
 
-            if (request.Password != null && !BCrypt.Net.BCrypt.Verify(request.Password,user.Password))
+            /*if (request.Password != null && !BCrypt.Net.BCrypt.Verify(request.Password,user.Password))
+            {*/
+            if (request.Password != null)
             {
+
+
                 if (!IsPasswordValid(request.Password))
                     return BadRequest(_User_Localizer["invalid.password"]);
 
@@ -209,18 +220,18 @@ namespace SyncFoodApi.Controllers.Users
                 // Ne sert à prioris à rien car va renvoyer le même token identique si l'ancien n'a pas expiré
                 /*user.Token = UserUtils.generateToken(_configuration, user);*/
 
-                passwordUpdated = true;
+                //passwordUpdated = true;
 
             }
 
-            bool updateUser = usernameUpdated || emailupdated || passwordUpdated;
+            // bool updateUser = usernameUpdated || emailupdated || passwordUpdated;
 
-            if (updateUser)
-            {
-                user.UpdatedDate = DateTime.Now;
-                _context.Users.Update(user);
-                _context.SaveChanges();
-            }
+            /*if (updateUser)
+            {*/
+            user.UpdatedDate = DateTime.Now;
+            _context.Users.Update(user);
+            _context.SaveChanges();
+            //}
 
             UserPrivateDTO userPrivate = (UserPrivateDTO)user;
             return Ok(userPrivate);
@@ -255,9 +266,9 @@ namespace SyncFoodApi.Controllers.Users
                 }
 
                 else
-                {
+                    group.Empty(_context);
                     _context.Groups.Remove(group);
-                }
+                
 
                 _context.SaveChanges();
             }
