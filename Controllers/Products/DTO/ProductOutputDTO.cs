@@ -37,7 +37,7 @@ namespace SyncFoodApi.Controllers.Products.DTO
         //public required string Name { get; set; }
         public required int BarCode { get; set; }
         public required float Price { get; set; }
-        public int Quantity { get; set; }
+        public required int Quantity { get; set; }
         //public NutriScore NutriScore { get; set; }
         //public float nutritionalValue { get; set; }
         public required DateTime ExpirationDate { get; set; }
@@ -51,6 +51,7 @@ namespace SyncFoodApi.Controllers.Products.DTO
                 //Name = product.Name,
                 Price = product.Price,
                 BarCode = product.BarCode,
+                Quantity = product.Quantity,
                 //NutriScore = product.NutriScore,
                 //nutritionalValue = product.nutritionalValue,
                 ExpirationDate = product.ExpirationDate,

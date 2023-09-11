@@ -26,7 +26,7 @@
         public required float Price { get; set; }
         /*public NutriScore NutriScore { get; set; }*/
         /*public float nutritionalValue { get; set; }*/
-        public int Quantity { get; set; } = 0;
+        public required int Quantity { get; set; }
         public required DateTime ExpirationDate { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;

@@ -10,6 +10,15 @@ namespace SyncFoodApi.Controllers.FoodContainers
         public static List<ProductPrivateDTO> GetProductsPrivate(List<Product> products)
         {
             List<ProductPrivateDTO> productsPrivateDTO = new List<ProductPrivateDTO>();
+
+            foreach (Product product in products)
+            {
+                productsPrivateDTO.Add((ProductPrivateDTO)product);
+            }
+
+            return productsPrivateDTO;
+
+           /* List<ProductPrivateDTO> productsPrivateDTO = new List<ProductPrivateDTO>();
             Dictionary<Product,int> ProductQtyDict = new Dictionary<Product,int>();
 
             // Première passe pour remplir le dictionnaire
@@ -32,7 +41,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
                 productsPrivateDTO.Add(productPrivateDTO);
             }
 
-            return productsPrivateDTO;
+            return productsPrivateDTO;*/
         }
 
         public static ProductPrivateDTO getProductPrivate(Product product, int productQuantity)
