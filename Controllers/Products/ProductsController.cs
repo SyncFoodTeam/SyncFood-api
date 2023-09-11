@@ -60,7 +60,7 @@ namespace SyncFoodApi.Controllers.Products
                     ExpirationDate = request.ExpirationDate
                 };
 
-                Console.WriteLine(product.Quantity);
+                // Console.WriteLine(product.Quantity);
 
                 foodcontainer.Products.Add(product);
                 _context.FoodContainers.Update(foodcontainer);
@@ -76,6 +76,33 @@ namespace SyncFoodApi.Controllers.Products
             _context.SaveChanges();
 
             return Ok((ProductPrivateDTO)product);
+
+
+        }
+
+
+        [HttpPatch("edit")]
+        public ActionResult<ProductPrivateDTO> editProduct(ProductEditDTO request)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+            if (request.Quantity <= 0)
+                return BadRequest("quantitée doit être > 0");
+
+            Product product = _context.Products.FirstOrDefault(x => x.Id == request.ProductID);
+
+            if (product == null)
+                return NotFound("Le produit est introuvable");
+
+            product.Quantity = request.Quantity;
+            _context.Products.Update(product);
+            _context.SaveChanges();
+
+            return Ok((ProductPrivateDTO)product);
+
 
 
         }

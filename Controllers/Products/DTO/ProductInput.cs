@@ -15,4 +15,10 @@ namespace SyncFoodApi.Controllers.Products.DTO
 
     }
 
+    public class ProductEditDTO
+    {
+        public int ProductID { get; set; }
+        public int Quantity { get; set; }
+    }
+
 }

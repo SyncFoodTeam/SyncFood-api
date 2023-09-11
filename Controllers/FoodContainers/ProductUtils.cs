@@ -44,11 +44,11 @@ namespace SyncFoodApi.Controllers.FoodContainers
             return productsPrivateDTO;*/
         }
 
-        public static ProductPrivateDTO getProductPrivate(Product product, int productQuantity)
+        /*public static ProductPrivateDTO getProductPrivate(Product product, int productQuantity)
         {
             ProductPrivateDTO productPrivateDTO = (ProductPrivateDTO)product;
             productPrivateDTO.Quantity = productQuantity;
             return productPrivateDTO;
-        }
+        }*/
     }
 }
