@@ -35,7 +35,7 @@ namespace SyncFoodApi.Controllers.Products.DTO
     {
         public int Id { get; set; }
         //public required string Name { get; set; }
-        public required int BarCode { get; set; }
+        public required string BarCode { get; set; }
         public required float Price { get; set; }
         public required int Quantity { get; set; }
         //public NutriScore NutriScore { get; set; }
