@@ -149,7 +149,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
 
         }
 
-        [HttpDelete("delete/products")]
+        /*[HttpDelete("delete/products")]
         public ActionResult<FoodContainer> deleteFoodContainerProducts(int FoodContainerID)
         {
             var user = getLogguedUser(User, _context);
@@ -169,7 +169,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             return Ok((FoodContainerPrivateDTO)foodcontainer);
 
 
-        }
+        }*/
 
     }
 }

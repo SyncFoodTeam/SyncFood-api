@@ -12,6 +12,7 @@ using static SyncFoodApi.Controllers.Users.UserUtils;
 using SyncFoodApi.Controllers.Products.DTO;
 using SyncFoodApi.Controllers.FoodContainers.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Azure.Core;
 
 namespace SyncFoodApi.Controllers.Products
 {
@@ -103,6 +104,29 @@ namespace SyncFoodApi.Controllers.Products
 
             return Ok((ProductPrivateDTO)product);
 
+        }
+
+
+        [HttpDelete("delete/{productID}")]
+        public ActionResult<ProductPrivateDTO> deleteProduct(int productID)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+
+            Product product = _context.Products.FirstOrDefault(x => x.Id == productID);
+
+            if (product == null)
+                return NotFound("Produit introuvable");
+
+            // supprimer le produit
+
+            _context.Products.Remove(product);
+            _context.SaveChanges();
+
+            return Ok((ProductPrivateDTO)product);
 
 
         }

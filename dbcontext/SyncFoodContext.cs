@@ -40,7 +40,7 @@ namespace SyncFoodApi.dbcontext
             modelBuilder.Entity<ShoppingList>().HasMany(shoppingList => shoppingList.Products).WithOne(product => product.ShoppingList);
 
             // FoodContainer <=> Group
-            modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers);
+            modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers).OnDelete(DeleteBehavior.Cascade);
 
             // FoodContainer <=> Product
             modelBuilder.Entity<FoodContainer>().HasMany(foodContainer => foodContainer.Products).WithOne(product => product.FoodContainer);
