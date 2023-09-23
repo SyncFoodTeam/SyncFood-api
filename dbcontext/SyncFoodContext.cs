@@ -6,11 +6,8 @@ namespace SyncFoodApi.dbcontext
 {
     public class SyncFoodContext : DbContext
     {
-        /*public SyncFoodContext(DbContextOptions<SyncFoodContext> options) : base(options)
-        {
 
-            
-        }*/
+
 
         public string DbPath { get; }
         public SyncFoodContext() 
@@ -25,6 +22,30 @@ namespace SyncFoodApi.dbcontext
         public DbSet<ShoppingList> ShoppingLists { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-    => options.UseSqlite($"Data Source={DbPath}");
+            => options.UseSqlite($"Data Source={DbPath}");
+       
+        #region Required
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Relations explicite entre les différents modèles
+
+            // Group <=> User
+            modelBuilder.Entity<Group>().HasMany(group => group.Members).WithMany(user => user.Groups);
+            modelBuilder.Entity<Group>().HasOne(group => group.Owner).WithMany(user => user.OwnedGroup);
+
+            // Group <=> ShoppingList
+            modelBuilder.Entity<Group>().HasOne(group => group.ShoppingList).WithOne(shoppingList => shoppingList.Group).HasForeignKey<ShoppingList>(shoppingList => shoppingList.GroupId);
+
+            // ShoppingList <=> Product
+            modelBuilder.Entity<ShoppingList>().HasMany(shoppingList => shoppingList.Products).WithOne(product => product.ShoppingList);
+
+            // FoodContainer <=> Group
+            modelBuilder.Entity<FoodContainer>().HasOne(foodcontainer => foodcontainer.group).WithMany(group => group.FoodContainers);
+
+            // FoodContainer <=> Product
+            modelBuilder.Entity<FoodContainer>().HasMany(foodContainer => foodContainer.Products).WithOne(product => product.FoodContainer);
+            
+        }
+        #endregion
     }
 }

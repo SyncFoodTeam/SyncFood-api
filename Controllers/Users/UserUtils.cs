@@ -5,12 +5,20 @@ using SyncFoodApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using SyncFoodApi.dbcontext;
+using System.Text.RegularExpressions;
 
 namespace SyncFoodApi.Controllers.Users
 {
     public static class UserUtils
     {
         // Fonctions et Méthodes
+
+        /*public static bool IsUserNameValide(string userName)
+        {
+            Regex regex = new Regex("^[a-zA-Z0-9]*$");
+            return regex.IsMatch(userName);
+
+        }*/
 
 
         public static bool IsValidEmail(string email)
@@ -40,9 +48,7 @@ namespace SyncFoodApi.Controllers.Users
         public static bool IsPasswordValid(string password)
         {
             if (password.Length < 6)
-            {
                 return false;
-            }
 
             bool containLower = false;
             bool containUpper = false;
@@ -51,6 +57,8 @@ namespace SyncFoodApi.Controllers.Users
             {
                 if (char.IsLower(c)) containLower = true;
                 if (char.IsUpper(c)) containUpper = true;
+                if (containLower && containUpper) break;
+
             }
 
             return (containLower && containUpper);
@@ -89,7 +97,7 @@ namespace SyncFoodApi.Controllers.Users
         {
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -110,9 +118,19 @@ namespace SyncFoodApi.Controllers.Users
 
         public static User getLogguedUser(ClaimsPrincipal User, SyncFoodContext _context)
         {
-            string userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            User user = _context.Users.FirstOrDefault(x => x.Email == userEmail);
-            return user;
+            int userID = int.Parse( User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            User user = _context.Users.FirstOrDefault(x => x.Id == userID);
+
+            if (user != null && user.Token != null && user.Token != string.Empty)
+            {
+
+                return user;
+            }
+
+            return null;
+
         }
+
+
     }
 }

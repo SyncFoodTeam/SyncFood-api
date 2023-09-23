@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
-using SyncFoodApi.Controllers.Users.DTO.Input;
-using SyncFoodApi.Controllers.DTO.Input;
-using SyncFoodApi.Controllers.DTO.Output;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using static SyncFoodApi.Controllers.Users.UserUtils;
+using static SyncFoodApi.Controllers.SyncFoodUtils;
+using SyncFoodApi.Controllers.Users.DTO;
+using NuGet.Protocol;
+using Microsoft.Extensions.Localization;
+using Microsoft.EntityFrameworkCore;
 
 namespace SyncFoodApi.Controllers.Users
 {
@@ -17,12 +19,21 @@ namespace SyncFoodApi.Controllers.Users
     {
         private readonly SyncFoodContext _context;
         private readonly IConfiguration _configuration;
-        public UserController(SyncFoodContext context, IConfiguration configuration)
+        // private readonly ILogger _logger;
+        private readonly IStringLocalizer<UserController> _User_Localizer;
+        public UserController(SyncFoodContext context, IConfiguration configuration, IStringLocalizer<UserController> userLocalizer)
         {
             // context de base de donnée
             _context = context;
+
             // config de l'appSettings.json
             _configuration = configuration;
+
+            // Logger
+            // _logger = logguer;
+
+            // Traduction
+            _User_Localizer = userLocalizer;
         }
 
 
@@ -46,22 +57,31 @@ namespace SyncFoodApi.Controllers.Users
 
             bool EmailAlreadyUsed = _context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower());
 
-            // si l'email est déjà utilisé ou invalide ou encore si le mot de passe n'est pas valide on return
-            if (EmailAlreadyUsed || !IsValidEmail(request.Email) || !IsPasswordValid(request.Password))
-                return BadRequest();
+            if (!AllowedName(request.UserName))
+                return BadRequest(_User_Localizer["invalid.username"]);
+
+            if (!IsValidEmail(request.Email))
+                return BadRequest(_User_Localizer["invalid.email"]);
+
+            if (!IsPasswordValid(request.Password))
+                return BadRequest(_User_Localizer["invalid.password"]);
+
+            if (EmailAlreadyUsed)
+                return Conflict(_User_Localizer["unavailable.email"]);
 
 
             if (registeredUser.Discriminator == string.Empty)
-                return Conflict("all discriminators are already taken for this username");
+                return Conflict(_User_Localizer["unavailable.username"]);
 
 
             _context.Users.Add(registeredUser);
             _context.SaveChanges();
 
-            UserPrivateDTO userPrivateDTO = (UserPrivateDTO)registeredUser;
-
-            return Ok(userPrivateDTO);
+            UserPrivateDTO userPrivate = (UserPrivateDTO)registeredUser;
+            // _logger.LogDebug($"New user registered : {userPrivate.ToJson()}");
+            return Ok(userPrivate);
         }
+
 
         [HttpPost("login"), AllowAnonymous]
         public ActionResult<User> UserLogin(UserLoginDTO request)
@@ -69,57 +89,71 @@ namespace SyncFoodApi.Controllers.Users
 
             User user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == request.Email.ToLower());
 
-            if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            // mail qui existe pas ou mauvais mdp
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                return Unauthorized(_User_Localizer["login.incorrect"]);
+
+
+            if (user.Token == null)
             {
-
-                if (user.Token == null)
-                {
-                    user.Token = generateToken(_configuration, user);
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
-                }
-
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
-
+                user.Token = generateToken(_configuration, user);
+                _context.Users.Update(user);
+                _context.SaveChanges();
             }
 
-            else
-            {
-                return Unauthorized();
-            }
+            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+            //  _logger.LogDebug($"User login : {userPrivate.ToJson()}");
+            return Ok(userPrivate);
+
         }
 
         [HttpGet("info/me")]
         public ActionResult<User> UserSelfInfo()
         {
             var user = getLogguedUser(User, _context);
-            // if (user != null)
-            // {
+
+            if (user == null)
+                return Unauthorized();
+
             UserPrivateDTO userPrivate = (UserPrivateDTO)user;
             return Ok(userPrivate);
 
-            // }
-
-            // else
-            // return NotFound();
         }
 
-        [HttpGet("info/{userID}")]
-        public ActionResult<User> UserInfo(int userID)
+        [HttpGet("info/id/{userID}")]
+        public ActionResult<User> GetUserById(int userID)
         {
+            var user = getLogguedUser(User, _context);
 
-            User user = _context.Users.FirstOrDefault(x => x.Id == userID);
-            if (user != null)
-            {
-                UserPublicDTO userPublic = (UserPublicDTO)user;
-                return Ok(userPublic);
-            }
+            if (user == null)
+                return Unauthorized();
 
-            else
-            {
-                return NotFound("There is no user corresponding to this id");
-            }
+            User requestedUser = _context.Users.FirstOrDefault(x => x.Id == userID);
+
+            if (requestedUser == null)
+                return NotFound(_User_Localizer["user.notfound"]);
+
+            UserPublicDTO userPublic = (UserPublicDTO)user;
+            return Ok(userPublic);
+
+        }
+
+        [HttpGet("info/username/{userName}/{discriminator}")]
+        public ActionResult<User> GetUserByNameDiscriminator(string userName, string discriminator)
+        {
+            var user = getLogguedUser(User, _context);
+
+            if (user == null)
+                return Unauthorized();
+
+            User requestedUser = _context.Users.FirstOrDefault(x => x.UserName.ToLower() == userName.ToLower() && x.Discriminator == discriminator);
+
+            if (requestedUser == null)
+                return NotFound(_User_Localizer["user.notfound"]);
+
+            UserPublicDTO userPublic = (UserPublicDTO)requestedUser;
+            return Ok(userPublic);
+
         }
 
         [HttpPatch("update/me")]
@@ -127,51 +161,81 @@ namespace SyncFoodApi.Controllers.Users
         {
             var user = getLogguedUser(User, _context);
 
-            // if (user != null)
-            // {
-            bool emailValid = false;
-            bool passwordValid = false;
-            bool updateUser = false;
+            if (user == null)
+                return Unauthorized();
 
+            /* bool usernameUpdated = false;
+             bool emailupdated = false;
+             bool passwordUpdated = false;*/
+
+            /*if (request.UserName != null && request.UserName.ToLower() != user.UserName.ToLower())
+            {*/
+            if (request.UserName != null)
+            {
+                if (!AllowedName(request.UserName))
+                    return BadRequest(_User_Localizer["invalid.username"]);
+
+                string newDiscriminator = discriminatorGenerator(_context, request.UserName);
+
+                if (newDiscriminator == null)
+                    return Conflict(_User_Localizer["unavailable.username"]);
+
+                user.UserName = request.UserName;
+                user.Discriminator = newDiscriminator;
+            }
+
+            //usernameUpdated = true;
+
+            // }
+
+            /*if (request.Email != null && request.Email.ToLower() != user.Email.ToLower())
+            {*/
             if (request.Email != null)
             {
-                emailValid = !_context.Users.Any(x => x.Email == request.Email) && IsValidEmail(request.Email);
+
+                if (!IsValidEmail(request.Email))
+                    return BadRequest(_User_Localizer["invalid.email"]);
+
+                if (_context.Users.Any(x => x.Email.ToLower() == request.Email.ToLower()))
+                    return Conflict(_User_Localizer["unavailable.email"]);
+
+
+                user.Email = request.Email;
+
+                //emailupdated = true;
+
             }
 
+            /*if (request.Password != null && !BCrypt.Net.BCrypt.Verify(request.Password,user.Password))
+            {*/
             if (request.Password != null)
             {
-                passwordValid = IsPasswordValid(request.Password);
+
+
+                if (!IsPasswordValid(request.Password))
+                    return BadRequest(_User_Localizer["invalid.password"]);
+
+                user.Password = user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                // Par mesure de sécurité on génère un nouveau token quand l'utilisateur change son mot de passe
+                // Ne sert à prioris à rien car va renvoyer le même token identique si l'ancien n'a pas expiré
+                /*user.Token = UserUtils.generateToken(_configuration, user);*/
+
+                //passwordUpdated = true;
+
             }
 
-            if (request.Email != null || request.Password != null)
-            {
-                updateUser = emailValid || passwordValid;
-            }
+            // bool updateUser = usernameUpdated || emailupdated || passwordUpdated;
 
-            if (updateUser)
-            {
-                if (emailValid)
-                    user.Email = request.Email;
-
-                if (passwordValid)
-                    user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-                user.UpdatedDate = DateTime.Now;
-
-                _context.Users.Update(user);
-                _context.SaveChanges();
-
-                UserPrivateDTO userPrivate = (UserPrivateDTO)user;
-                return Ok(userPrivate);
-            }
-
-            else
-                return BadRequest();
-
+            /*if (updateUser)
+            {*/
+            user.UpdatedDate = DateTime.Now;
+            _context.Users.Update(user);
+            _context.SaveChanges();
             //}
 
-            // else
-            // return NotFound();
+            UserPrivateDTO userPrivate = (UserPrivateDTO)user;
+            return Ok(userPrivate);
+
         }
 
 
@@ -180,15 +244,41 @@ namespace SyncFoodApi.Controllers.Users
         {
             var user = getLogguedUser(User, _context);
 
-            // if (user != null)
-            // {
+            if (user == null)
+                return Unauthorized();
+
+            List<Group> userGroup = _context.Groups.Include(x => x.Members).Include(x => x.Owner).Where(x => x.Members.Contains(user)).ToList();
+
+            foreach (Group group in userGroup)
+            {
+                // si il y'a plus d'un user on change le owner pour le prochain sur la liste
+                // si non on supprime carrément le groupe
+                if (group.Members.Count > 1)
+                {
+                    group.Members.Remove(user);
+                    // group.Owner = null;
+
+                    if (group.Owner == user)
+                    {
+                        group.Owner = group.Members[0];
+                    }
+                    group.UpdatedDate = DateTime.Now;
+                }
+
+                else
+                    group.Empty(_context);
+                    _context.Groups.Remove(group);
+                
+
+                _context.SaveChanges();
+            }
+
             _context.Users.Remove(user);
             _context.SaveChanges();
+
             UserPrivateDTO userPrivate = (UserPrivateDTO)user;
             return Ok(userPrivate);
-            // }
 
-            // return NotFound();
 
         }
 

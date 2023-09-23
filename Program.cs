@@ -9,6 +9,9 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Swashbuckle.AspNetCore.Filters;
+using static SyncFoodApi.Controllers.Users.UserUtils;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace SyncFoodApi
 {
@@ -27,7 +30,7 @@ namespace SyncFoodApi
                 User defaultAdminAccount = new User
                 {
                     UserName = "Admin",
-                    Discriminator = "#0000",
+                    Discriminator = "0000",
                     Email = "admin@admin",
                     Role = Role.ADMIN,
                     Password = BCrypt.Net.BCrypt.HashPassword("adminadmin"),
@@ -74,8 +77,28 @@ namespace SyncFoodApi
                     };
                 });
 
+            // Journalisation
+/*            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();*/
+
+            // Localisation (Langue)
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("fr-FR")
+                };
+
+                options.DefaultRequestCulture = new RequestCulture("en-US");
+                options.SupportedCultures = supportedCultures;
+            });
+
 
             var app = builder.Build();
+
+            app.UseRequestLocalization();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
