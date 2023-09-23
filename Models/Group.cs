@@ -16,9 +16,23 @@ namespace SyncFoodApi.Models
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
         // fonction pour vider le group (utile pour la suppression en cascade)
-        public void Empty(SyncFoodContext _context)
+       public void Empty(SyncFoodContext _context)
         {
-            foreach (FoodContainer foodcontainer in this.FoodContainers)
+
+            var foodcontainers = _context.FoodContainers.Where(x => x.group.Id == this.Id);
+            
+            foreach (FoodContainer foodcontainer in foodcontainers)
+            {
+                foodcontainer.Empty(_context);
+                _context.FoodContainers.Remove(foodcontainer);
+                _context.SaveChanges();
+            }
+
+            this.Members.Clear();
+            _context.Groups.Update(this);
+            // _context.Remove(this);
+
+            /*foreach (FoodContainer foodcontainer in this.FoodContainers)
             {
                 foodcontainer.Empty(_context);
                 _context.Remove(foodcontainer);
@@ -28,7 +42,7 @@ namespace SyncFoodApi.Models
             this.ShoppingList = null;
             this.Members = null;
 
-            _context.SaveChanges();
+            _context.SaveChanges();*/
         }
     }
 }

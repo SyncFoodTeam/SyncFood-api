@@ -14,17 +14,17 @@ namespace SyncFoodApi.Models
         // DB
         public Group group { get; set; }
 
-        // fonction pour vider le foodcontainer (utile pour la suppression en cascade)
+
         public void Empty(SyncFoodContext _context)
         {
-            foreach (Product product in this.Products)
+            var products = _context.Products.Where(x => x.FoodContainer.Id == this.Id);
+
+            foreach (Product product in products)
             {
                 _context.Products.Remove(product);
                 _context.SaveChanges();
             }
-            this.Products = new List<Product>();
 
-            _context.SaveChanges();
         }
     }
 }

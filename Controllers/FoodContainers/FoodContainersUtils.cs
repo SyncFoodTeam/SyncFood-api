@@ -2,6 +2,7 @@
 using SyncFoodApi.Controllers.Groups.DTO;
 using SyncFoodApi.Controllers.Products.DTO;
 using SyncFoodApi.Controllers.Users.DTO;
+using SyncFoodApi.dbcontext;
 using SyncFoodApi.Models;
 
 namespace SyncFoodApi.Controllers.FoodContainers
@@ -19,5 +20,19 @@ namespace SyncFoodApi.Controllers.FoodContainers
 
             return foodContainersPrivateliteDTO;
         }
+
+        // fonction pour vider le foodcontainer (utile pour la suppression en cascade)
+        /*public static void Empty(SyncFoodContext _context, FoodContainer foodContainer)
+        {
+            foreach (Product product in foodContainer.Products)
+            {
+                Console.WriteLine(product.BarCode);
+                _context.Products.Remove(product);
+                _context.SaveChanges();
+            }
+            foodContainer.Products = new List<Product>();
+
+            _context.SaveChanges();
+        }*/
     }
 }
