@@ -108,7 +108,7 @@ namespace SyncFoodApi.Controllers.FoodContainers
             return Ok((FoodContainerPrivateDTO)foodContainer);
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("delete/{foodContainerID}")]
         public ActionResult<FoodContainer> DeleteFoodContainer(int foodContainerID)
         {
             var user = getLogguedUser(User, _context);
